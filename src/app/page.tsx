@@ -51,8 +51,9 @@ export default function HomePage() {
             title: 'User Profile Not Found', 
             description: 'There was an issue loading your profile. Please log in again.' 
         });
-        auth.signOut();
-        // The onAuthStateChanged listener will then redirect to /login.
+        auth.signOut().finally(() => {
+          router.replace('/login');
+        });
         return;
     }
 

@@ -53,6 +53,7 @@ export default function ChatPage() {
     try {
       if (!auth) return;
       await auth.signOut();
+      sessionStorage.removeItem('app_unlocked');
       toast({
         title: 'Logout Successful',
         description: 'You have been securely logged out.',
