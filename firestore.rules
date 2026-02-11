@@ -6,38 +6,39 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Rules for the 'users' collection
+    // A user can query the users collection if they are signed in.
     match /users/{userId} {
-      // Anyone signed in can view user profiles or list all users.
       allow read: if isSignedIn();
-      // A user can only create their own profile, and the UID must match.
       allow create: if isSignedIn() && request.auth.uid == userId;
-      // A user can only update their own profile.
       allow update: if isSignedIn() && request.auth.uid == userId;
-      // Users cannot delete their profiles through the app.
       allow delete: if false;
     }
 
-    // Rules for the 'chats' collection
-    match /chats/{chatId} {
-      // Allow reading a single chat doc only if the user is a participant.
-      allow get: if isSignedIn() && request.auth.uid in resource.data.participants;
-      
-      // Allow creating a chat doc only if the user is a participant.
-      allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
-
-      // Allow updating a chat doc only if the user is a participant.
-      allow update: if isSignedIn() && request.auth.uid in resource.data.participants;
-
-      // Allow listing chats only if the query filters for chats where the user is a participant.
-      // This rule specifically validates `where("participants", "array-contains", currentUser.uid)`
-      allow list: if isSignedIn() && request.auth.uid in request.query.where.participants;
+    // Helper function to check if the user is authorized to list chats
+    function canListChats() {
+      let query = request.query.where;
+      // This handles `where('participants', 'array-contains', request.auth.uid)` queries
+      if (query.participants is string) {
+        return query.participants == request.auth.uid;
+      }
+      // This handles `where('participants', '==', [uid1, uid2])` queries
+      if (query.participants is list) {
+        return request.auth.uid in query.participants;
+      }
+      return false;
     }
 
-    // Rules for the 'messages' subcollection
+    match /chats/{chatId} {
+      allow get: if isSignedIn() && request.auth.uid in resource.data.participants;
+      allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
+      allow update: if isSignedIn() && request.auth.uid in resource.data.participants;
+      
+      // Allow listing chats only if the query is properly constrained to the user.
+      // This rule now handles both query types used in the app.
+      allow list: if isSignedIn() && canListChats();
+    }
+
     match /chats/{chatId}/messages/{messageId} {
-      // To read or write a message, user must be a participant of the parent chat.
-      // This is efficient and secure.
       allow read, write: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
     }
   }
