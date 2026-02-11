@@ -30,6 +30,7 @@ export default function ChatPage() {
 
   const handleLogout = async () => {
     try {
+      if (!auth) return;
       await auth.signOut();
       toast({
         title: 'Logout Successful',
@@ -55,24 +56,32 @@ export default function ChatPage() {
         "flex w-full flex-col border-r border-primary/20 md:w-full md:max-w-xs md:flex",
         selectedChat ? "hidden" : "flex"
       )}>
-        <div className="flex items-center justify-between border-b border-primary/20 p-4">
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={userProfile?.profilePhoto} />
-              <AvatarFallback>
-                {userProfile?.username?.[0].toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <span className="font-bold">{userProfile?.username}</span>
+        <div className="border-b border-primary/20 p-4">
+          <div className="text-center">
+            <h1 className="font-headline text-2xl font-bold text-primary">
+              BARADARI
+            </h1>
+            <p className="text-xs text-muted-foreground">(BOI KYA WANAN)</p>
           </div>
-          <Button
-            onClick={handleLogout}
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar>
+                <AvatarImage src={userProfile?.profilePhoto} />
+                <AvatarFallback>
+                  {userProfile?.username?.[0].toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-bold">{userProfile?.username}</span>
+            </div>
+            <Button
+              onClick={handleLogout}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -99,10 +108,11 @@ export default function ChatPage() {
         ) : (
           <div className="flex flex-1 items-center justify-center">
             <div className="text-center">
-              <h2 className="font-headline text-2xl text-primary">
-                Welcome to Baradari.web
+              <h2 className="font-headline text-3xl font-bold text-primary">
+                BARADARI
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">(BOI KYA WANAN)</p>
+              <p className="mt-2 text-muted-foreground">
                 Select a contact to start a secure transmission.
               </p>
             </div>
