@@ -22,8 +22,11 @@ import {
   Calendar,
   Wallet,
   FileSignature,
+  User,
+  CalendarClock,
 } from 'lucide-react';
 import Link from 'next/link';
+import DateTime from './date-time';
 
 const quickAccessItems = [
   { icon: Users, label: 'Students', href: '#' },
@@ -46,6 +49,49 @@ const quickAccessItems = [
 export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
+      {/* Heroic Container */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Total Roll</CardTitle>
+            <Users2 className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">1,254</div>
+            <p className="text-xs text-muted-foreground">Total students in school</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Total Boys</CardTitle>
+            <User className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">754</div>
+            <p className="text-xs text-muted-foreground">60.1% of total</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Total Girls</CardTitle>
+            <User className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">500</div>
+            <p className="text-xs text-muted-foreground">39.9% of total</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Date & Time</CardTitle>
+            <CalendarClock className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <DateTime />
+          </CardContent>
+        </Card>
+      </div>
+      
       {/* Quick Access Container */}
       <Card>
         <CardHeader>
