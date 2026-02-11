@@ -10,21 +10,31 @@ export default function GlobalError({
   return (
     <html>
       <body>
-        <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background p-4 text-center font-code text-foreground">
-          <h2 className="text-2xl font-headline text-destructive">
-            An Unrecoverable Error Occurred
-          </h2>
-          <p className="text-muted-foreground">
-            A critical error has occurred that the application cannot recover from.
-          </p>
-          <pre className="mt-4 w-full max-w-2xl overflow-auto rounded-md bg-card p-4 text-left text-sm text-destructive">
-            {error.stack || error.message}
-          </pre>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 rounded-md bg-primary px-4 py-2 font-headline text-primary-foreground hover:bg-primary/90"
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          fontFamily: 'sans-serif',
+          backgroundColor: '#0A0A0A',
+          color: '#E0E0E0'
+        }}>
+          <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#00FFFF' }}>Application Error</h1>
+          <p style={{ marginBottom: '1rem' }}>An unrecoverable error occurred in the application.</p>
+          <button 
+            onClick={() => reset()}
+            style={{
+              padding: '0.5rem 1rem',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              backgroundColor: '#00FFFF',
+              color: '#0A0A0A',
+              border: 'none',
+              borderRadius: '0.25rem'
+            }}
           >
-            Refresh Application
+            Try again
           </button>
         </div>
       </body>

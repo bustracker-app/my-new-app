@@ -4,12 +4,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFirestore, errorEmitter, FirestorePermissionError } from "@/firebase";
+import { useFirestore } from "@/firebase";
 import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SendHorizonal } from "lucide-react";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   text: z.string().min(1),
@@ -23,6 +24,7 @@ interface MessageInputProps {
 export default function MessageInput({ chatId, senderId }: MessageInputProps) {
     const [isSending, setIsSending] = useState(false);
     const firestore = useFirestore();
+    const { toast } = useToast();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: { text: "" },
@@ -47,32 +49,23 @@ export default function MessageInput({ chatId, senderId }: MessageInputProps) {
             messageId: '', // placeholder
         };
 
-        addDoc(messagesRef, messagePayload)
-          .then(() => {
-            updateDoc(chatRef, {
+        try {
+            await addDoc(messagesRef, messagePayload);
+            await updateDoc(chatRef, {
                 lastMessage: values.text,
                 lastMessageTime: serverTimestamp()
-            }).catch(updateError => {
-                const permissionError = new FirestorePermissionError({
-                    path: chatRef.path,
-                    operation: 'update',
-                    requestResourceData: { lastMessage: values.text }
-                });
-                errorEmitter.emit('permission-error', permissionError);
-            })
-            form.reset();
-          })
-          .catch(error => {
-            const permissionError = new FirestorePermissionError({
-                path: messagesRef.path,
-                operation: 'create',
-                requestResourceData: messagePayload
             });
-            errorEmitter.emit('permission-error', permissionError);
-          })
-          .finally(() => {
+            form.reset();
+        } catch (error: any) {
+            console.error("Error sending message:", error);
+            toast({
+                variant: "destructive",
+                title: "Failed to send message",
+                description: error.message || "Please check your connection and try again.",
+            });
+        } finally {
             setIsSending(false);
-          });
+        }
     }
 
     return (
