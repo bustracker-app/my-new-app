@@ -1,55 +1,65 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useFirestore, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ShieldCheck } from 'lucide-react';
+import { Loader2, KeyRound } from 'lucide-react';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  password: z.string().min(4, { message: 'Key must be at least 4 characters.' }),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Keys don't match.",
+  path: ['confirmPassword'],
 });
 
-export default function LoginPage() {
+export default function SetAppLockPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
+  const { user } = useUser();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) return;
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
-      // Clear session storage on new login
-      sessionStorage.removeItem('app_unlocked');
-      toast({
-        title: 'Authentication Successful',
-        description: 'Secure channel established. Welcome back.',
+      const userRef = doc(firestore, 'users', user.uid);
+      // This is a simulation of encryption. For a real app, use a secure backend method.
+      const hashedPassword = btoa(values.password);
+
+      await updateDoc(userRef, {
+        appLockEnabled: true,
+        appLockPassword: hashedPassword,
       });
-      router.push('/'); // Redirect to root to trigger app lock check
+
+      toast({
+        title: 'App Lock Activated',
+        description: 'Your secure hub is now protected.',
+      });
+      router.replace('/'); // Go to root to be redirected to chat
     } catch (error: any) {
       toast({
         variant: 'destructive',
-        title: 'Authentication Failed',
-        description: error.message || 'Please check your credentials and try again.',
+        title: 'Activation Failed',
+        description: error.message || 'Could not activate app lock.',
       });
     } finally {
       setIsLoading(false);
@@ -62,11 +72,11 @@ export default function LoginPage() {
         <Card className="glassmorphism">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary/50 bg-primary/10">
-              <ShieldCheck className="h-8 w-8 text-primary" />
+              <KeyRound className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="font-headline text-3xl text-primary">Baradari.web</CardTitle>
+            <CardTitle className="font-headline text-3xl text-primary">Set App Lock Key</CardTitle>
             <CardDescription className="font-code text-muted-foreground">
-              Secure Access Required
+              Step 2 of 2: This key is required to open the app.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -74,12 +84,12 @@ export default function LoginPage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-primary/80">Email</FormLabel>
+                      <FormLabel className="text-primary/80">Enter App Lock Key</FormLabel>
                       <FormControl>
-                        <Input placeholder="user@domain.tld" {...field} />
+                        <Input type="password" placeholder="••••" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -87,28 +97,22 @@ export default function LoginPage() {
                 />
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-primary/80">Password</FormLabel>
+                      <FormLabel className="text-primary/80">Re-enter App Lock Key</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="********" {...field} />
+                        <Input type="password" placeholder="••••" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <Button type="submit" disabled={isLoading} className="w-full glow-shadow-primary font-headline">
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Authenticate'}
+                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Activate App Lock'}
                 </Button>
               </form>
             </Form>
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              First time user?{' '}
-              <Link href="/signup" className="text-primary hover:underline">
-                Create New Account
-              </Link>
-            </p>
           </CardContent>
         </Card>
       </div>

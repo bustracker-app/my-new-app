@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus } from 'lucide-react';
 
 const formSchema = z.object({
+  nickname: z.string().min(3, { message: 'Nickname must be at least 3 characters.' }).max(50),
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }).max(20),
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
@@ -32,6 +33,7 @@ export default function SignupPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      nickname: '',
       username: '',
       email: '',
       password: '',
@@ -49,6 +51,7 @@ export default function SignupPage() {
       const userRef = doc(firestore, 'users', user.uid);
       await setDoc(userRef, {
         uid: user.uid,
+        nickname: values.nickname,
         username: values.username,
         email: values.email,
         profilePhoto: `https://picsum.photos/seed/${values.username}/200`,
@@ -57,13 +60,15 @@ export default function SignupPage() {
         lastSeen: serverTimestamp(),
         status: 'online',
         fcmToken: null,
+        appLockEnabled: false,
+        appLockPassword: null,
       });
 
       toast({
         title: 'Account Created',
-        description: 'Your secure account is ready. Welcome to Baradari.',
+        description: 'Proceed to the final security step.',
       });
-      router.push('/chat');
+      router.push('/set-app-lock');
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -83,22 +88,35 @@ export default function SignupPage() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary/50 bg-primary/10">
               <UserPlus className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="font-headline text-3xl text-primary">Create Account</CardTitle>
+            <CardTitle className="font-headline text-3xl text-primary">Create New Account</CardTitle>
             <CardDescription className="font-code text-muted-foreground">
-              Join the Baradari network. All transmissions are secure.
+              Step 1 of 2: Register your secure identity.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
+                  control={form.control}
+                  name="nickname"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary/80">Nick Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Your display name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-primary/80">Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="your_callsign" {...field} />
+                        <Input placeholder="your_unique_callsign" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -109,7 +127,7 @@ export default function SignupPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-primary/80">Email</FormLabel>
+                      <FormLabel className="text-primary/80">Temporary Email</FormLabel>
                       <FormControl>
                         <Input placeholder="user@domain.tld" {...field} />
                       </FormControl>
@@ -122,7 +140,7 @@ export default function SignupPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-primary/80">Password</FormLabel>
+                      <FormLabel className="text-primary/80">Account Password</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="********" {...field} />
                       </FormControl>

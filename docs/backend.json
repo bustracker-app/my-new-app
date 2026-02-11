@@ -14,6 +14,10 @@
           "type": "string",
           "description": "Unique, user-chosen display name."
         },
+        "nickname": {
+          "type": "string",
+          "description": "User's chosen display name (not unique)."
+        },
         "email": {
           "type": "string",
           "description": "User's email address.",
@@ -46,9 +50,17 @@
           "type": "string",
           "description": "User's online status.",
           "enum": ["online", "offline"]
+        },
+        "appLockEnabled": {
+          "type": "boolean",
+          "description": "Flag to indicate if the app lock is enabled."
+        },
+        "appLockPassword": {
+          "type": "string",
+          "description": "Hashed password for the app lock feature."
         }
       },
-      "required": ["uid", "username", "email", "createdAt", "status"]
+      "required": ["uid", "username", "nickname", "email", "createdAt", "status"]
     },
     "Chat": {
       "$schema": "http://json-schema.org/draft-07/schema#",
