@@ -74,11 +74,11 @@
 
   /* For cyber-globe page */
   .glassmorphism-hacker {
-    @apply bg-black/50 backdrop-blur-sm border border-primary/20;
+    @apply bg-black/50 backdrop-blur-sm border border-primary/20 rounded-lg;
   }
 
   .text-glow-primary {
-    text-shadow: 0 0 8px hsl(var(--primary));
+    text-shadow: 0 0 8px hsl(var(--primary)), 0 0 16px hsl(var(--primary) / 0.5);
   }
   .text-glow-red {
     text-shadow: 0 0 5px hsl(var(--destructive)), 0 0 10px hsl(var(--destructive));
@@ -90,14 +90,18 @@
     text-shadow: 0 0 5px #0F0, 0 0 10px #0F0;
   }
 
-  .radar-sweep-container {
-      @apply absolute inset-0 rounded-full;
-      background: radial-gradient(circle, transparent 50%, rgba(0, 255, 255, 0.1) 51%, rgba(0, 255, 255, 0.2) 100%);
+  .futuristic-radar-sweep-container {
+      @apply absolute inset-0;
+      background:
+        radial-gradient(circle at center, transparent 30%, hsl(var(--primary) / 0.1) 30.2%, hsl(var(--primary) / 0.1) 50%, transparent 50.2%),
+        radial-gradient(circle at center, transparent 60%, hsl(var(--primary) / 0.1) 60.2%, hsl(var(--primary) / 0.1) 80%, transparent 80.2%);
   }
   
-  .radar-sweep-line {
-      @apply absolute bottom-1/2 right-1/2 h-1/2 w-1 origin-bottom-right bg-gradient-to-t from-primary/80 to-transparent;
+  .futuristic-radar-sweep-line {
+      @apply absolute bottom-1/2 right-1/2 h-1/2 w-1 origin-bottom-right;
+      background: linear-gradient(to top, hsl(var(--primary) / 0.7) 0%, transparent 100%);
       animation: radar-sweep 5s linear infinite;
+      box-shadow: 0 0 10px hsl(var(--primary));
   }
 
   @keyframes radar-sweep {
@@ -135,14 +139,34 @@
     animation: draw-line 2s ease-out forwards;
   }
 
+  @keyframes impact {
+    0% { r: 0.1; fill: white; stroke-width: 0.1; }
+    50% { r: 1.5; fill: hsl(var(--destructive) / 0.5); stroke-width: 0.3; }
+    100% { r: 0.5; fill: hsl(var(--destructive) / 0.2); stroke-width: 0.1; }
+  }
+  .attack-impact {
+    fill: hsl(var(--destructive));
+    stroke: white;
+    stroke-width: 0.2;
+    animation: impact 1s ease-out forwards;
+  }
+
+
   @keyframes fade-in {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
   }
-
   .animate-fade-in {
       animation: fade-in 0.5s ease-out forwards;
   }
+  
+  @keyframes pulse-slow {
+      50% { opacity: .7; }
+  }
+  .animate-pulse-slow {
+      animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
 
   @keyframes glitch-fast {
     0%, 100% { clip-path: inset(0 0 0 0); }

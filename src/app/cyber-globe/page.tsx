@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ShieldAlert, ShieldCheck, ShieldOff, Globe } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, ShieldCheck, ShieldOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -58,7 +58,10 @@ export default function CyberGlobePage() {
     }), []);
 
     const topIssues = useMemo(() => [
-        "Data Theft Attempt", "Financial Ransomware Attack", "Government Server Breach", "Global Phishing Wave"
+        {text: "Data Theft Attempt", status: "active"},
+        {text: "Financial Ransomware Attack", status: "active"},
+        {text: "Government Server Breach", status: "monitoring"},
+        {text: "Global Phishing Wave", status: "neutralized"}
     ], []);
 
     // Matrix background effect
@@ -75,7 +78,7 @@ export default function CyberGlobePage() {
         setCanvasSize();
         window.addEventListener('resize', setCanvasSize);
 
-        const alphabet = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const alphabet = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン01';
         const fontSize = 16;
         const columns = Math.ceil(canvas.width / fontSize);
         const rainDrops: number[] = Array(columns).fill(1);
@@ -83,7 +86,7 @@ export default function CyberGlobePage() {
         const draw = () => {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'hsl(var(--primary))';
+            ctx.fillStyle = 'hsl(var(--primary) / 0.5)';
             ctx.font = fontSize + 'px monospace';
             for (let i = 0; i < rainDrops.length; i++) {
                 const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
@@ -116,7 +119,7 @@ export default function CyberGlobePage() {
                 color: statusInfo.color
             };
             setLogs(prev => [newLog, ...prev.slice(0, 14)]);
-        }, 2000);
+        }, 1500);
 
         const attackInterval = setInterval(() => {
             const from = locations[Math.floor(Math.random() * locations.length)];
@@ -124,174 +127,124 @@ export default function CyberGlobePage() {
             while (from === to) to = locations[Math.floor(Math.random() * locations.length)];
             const newAttack = { id: Date.now(), from, to };
             setAttacks(prev => [...prev, newAttack]);
-            setTimeout(() => setAttacks(prev => prev.filter(a => a.id !== newAttack.id)), 2000);
-        }, 3000);
+            setTimeout(() => setAttacks(prev => prev.filter(a => a.id !== newAttack.id)), 2500);
+        }, 2000);
+        
+        const issueInterval = setInterval(() => {
+            setCurrentIssueIndex(i => (i + 1) % topIssues.length)
+        }, 5000);
 
         return () => {
             clearInterval(logInterval);
             clearInterval(attackInterval);
+            clearInterval(issueInterval);
         };
-    }, [locations, attackTypes, logStatuses]);
+    }, [locations, attackTypes, logStatuses, topIssues.length]);
 
     return (
         <div className="fixed inset-0 bg-black text-green-400 font-code overflow-hidden">
             <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-20"></canvas>
             
             <div className="relative z-10 flex flex-col h-full w-full">
-                {/* Header-like elements */}
+                {/* Header Elements */}
                 <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
-                    <h1 className="font-headline text-2xl md:text-3xl text-primary text-glow-primary">Baradari.web</h1>
+                    <h1 className="font-headline text-2xl md:text-3xl text-primary text-glow-primary animate-text-flicker">BARADARI.WEB</h1>
                 </div>
                  <div className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center gap-2 z-20">
-                    <Button variant="outline" className="bg-black/50" onClick={() => router.push('/chat')}>
+                    <Button variant="outline" className="bg-black/50 border-primary/50 text-primary/80 hover:bg-primary/10 hover:text-primary" onClick={() => router.push('/chat')}>
                         <ArrowLeft className="h-4 w-4 mr-2" />
-                        Home
+                        HOME
                     </Button>
                 </div>
 
-                {/* Mobile view: Globe fills screen */}
-                <main className="md:hidden relative flex-1">
-                    <Image 
-                        src="https://images.unsplash.com/photo-1593369528447-c07925c3ba32?q=80&w=2000&auto=format&fit=crop"
-                        alt="Digital World Map"
-                        layout="fill"
-                        objectFit="contain"
-                        className="opacity-60"
-                        data-ai-hint="digital world map"
-                    />
-                    <div className="absolute inset-0 radar-sweep-container">
-                        <div className="radar-sweep-line"></div>
-                    </div>
-                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        {attacks.map(attack => {
-                            const from = countryCoords[attack.from];
-                            const to = countryCoords[attack.to];
-                            const controlX = (from.x + to.x) / 2 + (from.y - to.y) / 4;
-                            const controlY = (from.y + to.y) / 2 - (from.x - to.x) / 4;
-                            return (
-                                <path
-                                    key={attack.id}
-                                    d={`M${from.x},${from.y} Q${controlX},${controlY} ${to.x},${to.y}`}
-                                    stroke="hsl(var(--destructive))"
-                                    strokeWidth="0.3"
-                                    fill="none"
-                                    className="attack-line"
-                                />
-                            );
-                        })}
-                    </svg>
-                    {/* Hotspots */}
-                    <div className="absolute top-[35%] left-[52%]">
-                        <div className="relative flex h-2 w-2">
-                            <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
-                            <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
-                        </div>
-                    </div>
-                    <div className="absolute top-[40%] left-[25%]">
-                        <div className="relative flex h-2 w-2">
-                            <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
-                            <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
-                        </div>
-                    </div>
-                    <div className="absolute top-[45%] left-[75%]">
-                        <div className="relative flex h-2 w-2">
-                            <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
-                            <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
-                        </div>
-                    </div>
-                </main>
-
-                {/* Desktop view: Grid layout */}
-                <main className="hidden md:grid flex-1 grid-cols-12 grid-rows-6 gap-4 p-4 md:p-6 pt-16">
+                <main className="flex-1 grid grid-cols-12 grid-rows-6 gap-4 p-4 md:p-6 pt-16">
                     {/* Left Panel: Logs */}
-                    <div className="col-span-3 row-span-6 glassmorphism-hacker p-4 overflow-hidden flex flex-col">
-                        <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2">ATTACK LOGS</h2>
+                    <div className="col-span-12 md:col-span-3 md:row-span-6 glassmorphism-hacker p-4 overflow-hidden flex flex-col">
+                        <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2 text-glow-primary">LIVE ATTACK FEED</h2>
                         <ul className="space-y-2 text-xs overflow-y-auto h-full pr-2 flex-1">
                            {logs.map(log => (
                                <li key={log.id} className="flex items-start gap-2 animate-fade-in">
                                    <LogIcon status={log.status} />
                                    <span className={cn('font-bold', log.color)}>[{log.status}]</span>
-                                   <span className="text-muted-foreground">{log.message}</span>
+                                   <span className="text-muted-foreground"><Typewriter text={log.message} onComplete={() => {}} /></span>
                                </li>
                            ))}
                         </ul>
                     </div>
 
                     {/* Center: Globe */}
-                    <div className="relative col-span-6 row-span-4 overflow-hidden">
+                    <div className="relative col-span-12 md:col-span-6 row-span-4 md:row-span-6 -m-4 md:m-0">
                          <Image 
                             src="https://images.unsplash.com/photo-1593369528447-c07925c3ba32?q=80&w=2000&auto=format&fit=crop"
                             alt="Digital World Map"
                             fill
-                            className="object-contain opacity-60"
+                            className="object-contain opacity-40 animate-pulse-slow"
                             data-ai-hint="digital world map"
                          />
-                         <div className="absolute inset-0 radar-sweep-container">
-                            <div className="radar-sweep-line"></div>
+                         <div className="absolute inset-0 futuristic-radar-sweep-container">
+                            <div className="futuristic-radar-sweep-line"></div>
                          </div>
-                         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
                             {attacks.map(attack => {
                                 const from = countryCoords[attack.from];
                                 const to = countryCoords[attack.to];
                                 const controlX = (from.x + to.x) / 2 + (from.y - to.y) / 4;
                                 const controlY = (from.y + to.y) / 2 - (from.x - to.x) / 4;
                                 return (
-                                    <path
-                                        key={attack.id}
-                                        d={`M${from.x},${from.y} Q${controlX},${controlY} ${to.x},${to.y}`}
-                                        stroke="hsl(var(--destructive))"
-                                        strokeWidth="0.3"
-                                        fill="none"
-                                        className="attack-line"
-                                    />
+                                    <g key={attack.id}>
+                                        <path
+                                            d={`M${from.x},${from.y} Q${controlX},${controlY} ${to.x},${to.y}`}
+                                            stroke="hsl(var(--destructive) / 0.5)"
+                                            strokeWidth="0.3"
+                                            fill="none"
+                                            className="attack-line"
+                                        />
+                                        <circle cx={to.x} cy={to.y} r="0.8" className="attack-impact" />
+                                    </g>
                                 );
                             })}
                          </svg>
-                         {/* Hotspots */}
-                         <div className="absolute top-[35%] left-[52%]">
-                            <div className="relative flex h-2 w-2">
-                                <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
-                                <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
-                            </div>
-                         </div>
-                         <div className="absolute top-[40%] left-[25%]">
-                             <div className="relative flex h-2 w-2">
-                                <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
-                                <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
-                            </div>
-                         </div>
-                          <div className="absolute top-[45%] left-[75%]">
-                             <div className="relative flex h-2 w-2">
-                                <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
-                                <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
-                            </div>
-                         </div>
+                         {Object.values(countryCoords).map((coords, i) => (
+                             <div key={i} className="absolute" style={{top: `${coords.y}%`, left: `${coords.x}%`}}>
+                                <div className="relative flex h-2 w-2">
+                                    <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/50 opacity-75"></div>
+                                    <div className="relative inline-flex rounded-full h-2 w-2 bg-primary/80"></div>
+                                </div>
+                             </div>
+                         ))}
                     </div>
 
-                    {/* Top Right: Issues */}
-                    <div className="col-span-3 row-span-2 glassmorphism-hacker p-4">
-                        <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2">TOP CYBER ISSUES</h2>
-                        <ul className="space-y-3 text-sm">
-                            {topIssues.map((issue, index) => (
-                                <li key={index} className="flex items-center gap-2">
-                                    <span className={cn("h-2 w-2 rounded-full", currentIssueIndex > index ? 'bg-green-500' : 'bg-red-500 animate-pulse')}/>
-                                    {currentIssueIndex === index && <Typewriter text={issue} onComplete={() => setCurrentIssueIndex(i => i + 1)} />}
-                                    {currentIssueIndex > index && <span>{issue}</span>}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Bottom Right: Status */}
-                     <div className="col-span-3 row-span-4 glassmorphism-hacker p-4 flex flex-col justify-between">
-                        <div>
-                            <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2">SYSTEM STATUS</h2>
-                            <p className="text-green-400 text-glow-green text-lg font-bold">ALL SYSTEMS NOMINAL</p>
-                            <p className="text-xs text-muted-foreground">Network Integrity: 99.98%</p>
+                    {/* Right Panels */}
+                    <div className="col-span-12 md:col-span-3 md:row-span-6 flex flex-col gap-4">
+                        <div className="glassmorphism-hacker p-4 flex-1">
+                            <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2 text-glow-primary">TOP CYBER ISSUES</h2>
+                            <ul className="space-y-3 text-sm">
+                                {topIssues.map((issue, index) => (
+                                    <li key={index} className="flex items-center gap-2">
+                                        <span className={cn("h-2 w-2 rounded-full", {
+                                            'bg-red-500 animate-pulse': issue.status === 'active',
+                                            'bg-green-500': issue.status === 'neutralized',
+                                            'bg-yellow-500': issue.status === 'monitoring',
+                                        })}/>
+                                        <span className={cn({
+                                            'text-red-400': issue.status === 'active',
+                                            'text-green-400': issue.status === 'neutralized',
+                                            'text-yellow-400': issue.status === 'monitoring',
+                                        })}>{issue.text}</span>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
-                        <div className="text-center">
-                            <p className="text-sm text-yellow-400">Threat Neutralized</p>
-                            <p className="text-xs text-muted-foreground">Recovery Protocol Activated</p>
+                        <div className="glassmorphism-hacker p-4 flex-1 flex flex-col justify-between">
+                            <div>
+                                <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2 text-glow-primary">SYSTEM STATUS</h2>
+                                <p className="text-green-400 text-glow-green text-lg font-bold">ALL SYSTEMS NOMINAL</p>
+                                <p className="text-xs text-muted-foreground">Network Integrity: 99.98%</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-sm text-yellow-400 text-glow-yellow">Threat Monitoring Active</p>
+                                <p className="text-xs text-muted-foreground">Recovery Protocols on Standby</p>
+                            </div>
                         </div>
                     </div>
                 </main>
@@ -304,5 +257,3 @@ export default function CyberGlobePage() {
         </div>
     );
 }
-
-    

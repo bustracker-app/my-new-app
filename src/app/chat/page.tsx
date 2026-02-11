@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { LogOut, Home, User, Globe, Shield } from 'lucide-react';
+import { LogOut, Home, User, Shield, ShieldAlert } from 'lucide-react';
 import ChatList from './components/chat-list';
 import UserList from './components/user-list';
 import ChatWindow from './components/chat-window';
@@ -102,10 +102,10 @@ export default function ChatPage() {
               <span className="font-bold">{userProfile?.username}</span>
             </div>
             <div className="flex items-center gap-1">
-                <Button asChild variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:bg-red-500/10 hover:text-red-500 radar-pulse" title="View Cyber Attacks">
+                <Button asChild variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:bg-red-500/10 hover:text-red-500 radar-pulse rounded-full" title="Live Cyber Attacks">
                     <Link href="/cyber-globe">
-                        <Globe className="h-4 w-4 animate-spin-slow" />
-                        <span className="sr-only">Cyber Globe</span>
+                        <ShieldAlert className="h-5 w-5" />
+                        <span className="sr-only">Live Cyber Attacks</span>
                     </Link>
                 </Button>
                 <Button
