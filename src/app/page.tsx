@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { doc } from 'firebase/firestore';
 
 type UserProfile = {
-  isAppLockEnabled: boolean;
+  appLockEnabled: boolean;
 };
 
 export default function HomePage() {
@@ -48,7 +48,7 @@ export default function HomePage() {
     }
 
     // If we have the user and their profile, decide where to go
-    if (userProfile.isAppLockEnabled) {
+    if (userProfile.appLockEnabled) {
       const isAppUnlocked = sessionStorage.getItem('app_unlocked') === 'true';
       if (!isAppUnlocked) {
         router.replace('/app-lock');
