@@ -3,43 +3,32 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
-// A component to display text with a typewriter effect
 const Typewriter = ({
-  lines,
+  line,
   onComplete,
-  speed = 40,
+  speed = 50,
 }: {
-  lines: string[];
+  line: string;
   onComplete?: () => void;
   speed?: number;
 }) => {
   const [text, setText] = useState('');
-  const [lineIndex, setLineIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
 
   useEffect(() => {
-    if (lineIndex >= lines.length) {
-      onComplete?.();
-      return;
-    }
-
-    const currentLine = lines[lineIndex];
-
-    if (charIndex < currentLine.length) {
+    if (charIndex < line.length) {
       const timeout = setTimeout(() => {
-        setText((prev) => prev + currentLine[charIndex]);
+        setText((prev) => prev + line[charIndex]);
         setCharIndex((prev) => prev + 1);
       }, speed);
       return () => clearTimeout(timeout);
     } else {
       const timeout = setTimeout(() => {
-        setText((prev) => prev + '\n');
-        setLineIndex((prev) => prev + 1);
-        setCharIndex(0);
-      }, 300); // Pause before next line
+        onComplete?.();
+      }, 300); // Pause after typing
       return () => clearTimeout(timeout);
     }
-  }, [lineIndex, charIndex, lines, onComplete, speed]);
+  }, [charIndex, line, onComplete, speed]);
 
   return (
     <div className="whitespace-pre-wrap">
@@ -49,30 +38,21 @@ const Typewriter = ({
   );
 };
 
+
 export default function SecureHubAnimation({ onComplete }: { onComplete: () => void }) {
   const [stage, setStage] = useState<'typing' | 'progress' | 'finished'>('typing');
-
-  const typingLines = [
-    'Initializing secure hub...',
-    'Verifying encrypted key...',
-    'Authenticating user identity...',
-    'Establishing secure connection...',
-    'Loading security layer...',
-    'Access granted.',
-  ];
+  const typingLine = 'Initializing secure connection...';
 
   useEffect(() => {
     if (stage === 'progress') {
-      // Duration for the progress bar animation
       const timer = setTimeout(() => {
         setStage('finished');
-      }, 1500);
+      }, 1000); // Progress bar duration
       return () => clearTimeout(timer);
     } else if (stage === 'finished') {
-      // Duration for the final fade-out before completing
       const timer = setTimeout(() => {
         onComplete();
-      }, 750);
+      }, 500); // Fade out duration
       return () => clearTimeout(timer);
     }
   }, [stage, onComplete]);
@@ -88,7 +68,7 @@ export default function SecureHubAnimation({ onComplete }: { onComplete: () => v
         <div className="rounded-lg border border-primary/20 bg-black/30 p-6 shadow-[0_0_20px_hsl(var(--primary)_/_0.2)]">
           {stage === 'typing' && (
             <Typewriter
-              lines={typingLines}
+              line={typingLine}
               onComplete={() => setStage('progress')}
             />
           )}
@@ -96,9 +76,6 @@ export default function SecureHubAnimation({ onComplete }: { onComplete: () => v
           {(stage === 'progress' || stage === 'finished') && (
             <div className="space-y-3">
               <p className="text-green-400">Secure Mode Activated</p>
-              <p className="text-sm text-muted-foreground">
-                Redirecting to Application...
-              </p>
               <div className="h-1 w-full overflow-hidden rounded-full bg-primary/20">
                 <div className="h-full animate-fill-progress rounded-full bg-green-400"></div>
               </div>
