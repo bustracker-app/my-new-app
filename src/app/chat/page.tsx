@@ -1,16 +1,31 @@
 'use client';
 
-import { useAuth, useUser } from '@/firebase';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useAuth, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { LogOut } from 'lucide-react';
+import ChatList from './components/chat-list';
+import UserList from './components/user-list';
+import ChatWindow from './components/chat-window';
 
 export default function ChatPage() {
+  const [selectedChat, setSelectedChat] = useState<{ id: string; otherParticipantId: string } | null>(null);
   const auth = useAuth();
-  const { user } = useUser();
-  const router = useRouter();
+  const { user: authUser } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
+
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !authUser) return null;
+    return doc(firestore, 'users', authUser.uid);
+  }, [firestore, authUser]);
+  const { data: userProfile } = useDoc(userDocRef);
 
   const handleLogout = async () => {
     try {
@@ -29,19 +44,63 @@ export default function ChatPage() {
     }
   };
 
+  const handleSelectChat = (chatId: string, otherParticipantId: string) => {
+    setSelectedChat({ id: chatId, otherParticipantId });
+  };
+
   return (
-    <div className="flex h-screen flex-col items-center justify-center text-foreground">
-      <h1 className="font-headline text-4xl text-primary">Welcome to Baradari</h1>
-      <p className="mt-2 text-muted-foreground">
-        Logged in as: <span className="text-primary">{user?.email}</span>
-      </p>
-      <div className="mt-8">
-        <p>Chat interface will be built here.</p>
+    <div className="flex h-screen w-full font-code text-foreground glassmorphism">
+      <div className="flex w-full max-w-xs flex-col border-r border-primary/20">
+        <div className="flex items-center justify-between border-b border-primary/20 p-4">
+          <div className="flex items-center gap-3">
+            <Avatar>
+              <AvatarImage src={userProfile?.profilePhoto} />
+              <AvatarFallback>
+                {userProfile?.username?.[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="font-bold">{userProfile?.username}</span>
+          </div>
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <UserList onChatCreated={handleSelectChat} />
+          <Separator className="my-2 bg-primary/20" />
+          <ChatList
+            onSelectChat={handleSelectChat}
+            selectedChatId={selectedChat?.id}
+          />
+        </div>
       </div>
-      <Button onClick={handleLogout} variant="destructive" className="mt-8">
-        <LogOut className="mr-2 h-4 w-4" />
-        Logout
-      </Button>
+
+      <div className="flex flex-1 flex-col">
+        {selectedChat ? (
+          <ChatWindow
+            key={selectedChat.id}
+            chatId={selectedChat.id}
+            otherParticipantId={selectedChat.otherParticipantId}
+          />
+        ) : (
+          <div className="flex flex-1 items-center justify-center">
+            <div className="text-center">
+              <h2 className="font-headline text-2xl text-primary">
+                Welcome to Baradari.web
+              </h2>
+              <p className="text-muted-foreground">
+                Select a contact to start a secure transmission.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

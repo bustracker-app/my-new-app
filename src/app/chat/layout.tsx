@@ -24,5 +24,5 @@ export default function ChatLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return <div className="h-screen w-full">{children}</div>;
 }
