@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { LogOut, Home, User } from 'lucide-react';
+import { LogOut, Home, User, Globe } from 'lucide-react';
 import ChatList from './components/chat-list';
 import UserList from './components/user-list';
 import ChatWindow from './components/chat-window';
@@ -114,6 +114,12 @@ export default function ChatPage() {
                     <Link href="/chat">
                         <Home className="h-5 w-5" />
                         <span className="sr-only">Home</span>
+                    </Link>
+                </Button>
+                 <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-full text-red-500/80 hover:bg-red-500/10 hover:text-red-500 border border-red-500/50 glow-shadow-red radar-pulse">
+                    <Link href="/cyber-globe">
+                        <Globe className="h-5 w-5 animate-spin-slow" />
+                        <span className="sr-only">Cyber Globe</span>
                     </Link>
                 </Button>
                 <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary/80 hover:bg-primary/10 hover:text-primary">
