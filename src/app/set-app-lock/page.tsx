@@ -50,11 +50,16 @@ export default function SetAppLockPage() {
         appLockPassword: hashedPassword,
       });
 
+      // Unlock the app for the current session
+      sessionStorage.setItem('app_unlocked', 'true');
+
       toast({
         title: 'App Lock Activated',
         description: 'Your secure hub is now protected.',
       });
-      router.replace('/'); // Go to root to be redirected to chat
+      
+      // Go directly to chat instead of the root page
+      router.replace('/chat');
     } catch (error: any) {
       toast({
         variant: 'destructive',
