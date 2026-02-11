@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { LogOut } from 'lucide-react';
+import { LogOut, Home, User } from 'lucide-react';
 import ChatList from './components/chat-list';
 import UserList from './components/user-list';
 import ChatWindow from './components/chat-window';
@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 
 export default function ChatPage() {
   const [selectedChat, setSelectedChat] = useState<{ id: string; otherParticipantId: string } | null>(null);
+  const [hackyText, setHackyText] = useState('');
   const auth = useAuth();
   const { user: authUser } = useUser();
   const firestore = useFirestore();
@@ -27,6 +28,19 @@ export default function ChatPage() {
     return doc(firestore, 'users', authUser.uid);
   }, [firestore, authUser]);
   const { data: userProfile } = useDoc(userDocRef);
+
+  useEffect(() => {
+    const chars = '█▓▒░-';
+    const interval = setInterval(() => {
+        let text = 'INCOMING_STREAM::';
+        for (let i = 0; i < 20; i++) {
+            text += chars[Math.floor(Math.random() * chars.length)];
+        }
+        setHackyText(text);
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -92,6 +106,22 @@ export default function ChatPage() {
             selectedChatId={selectedChat?.id}
           />
         </div>
+
+        <footer className="mt-auto border-t border-primary/20 p-2">
+            <div className="flex items-center justify-around">
+                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary/80 hover:bg-primary/10 hover:text-primary">
+                    <Home className="h-5 w-5" />
+                    <span className="sr-only">Home</span>
+                </Button>
+                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary/80 hover:bg-primary/10 hover:text-primary">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">Profile</span>
+                </Button>
+            </div>
+            <div className="mt-1 text-center text-xs font-mono text-primary/60 overflow-hidden whitespace-nowrap" title={hackyText}>
+                {hackyText}
+            </div>
+        </footer>
       </div>
 
       <div className={cn(
