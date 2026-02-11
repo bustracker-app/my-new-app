@@ -1,0 +1,618 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user in the Abu Huraira Institute School App.",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user (e.g., admin, teacher, student, parent, driver)."
+        },
+        "phone": {
+          "type": "string",
+          "description": "The phone number of the user."
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the user (e.g., active, inactive)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "The date and time the user was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "name",
+        "email",
+        "role"
+      ]
+    },
+    "Student": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Student",
+      "type": "object",
+      "description": "Represents a student in the Abu Huraira Institute School App.",
+      "properties": {
+        "studentId": {
+          "type": "string",
+          "description": "Unique identifier for the student."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the student."
+        },
+        "classId": {
+          "type": "string",
+          "description": "Reference to Class. (Relationship: Class 1:N Student)"
+        },
+        "sectionId": {
+          "type": "string",
+          "description": "Reference to Section. (Relationship: Section 1:N Student)"
+        },
+        "rollNumber": {
+          "type": "number",
+          "description": "The roll number of the student in the class."
+        },
+        "parentId": {
+          "type": "string",
+          "description": "Reference to Parent (User). (Relationship: User 1:N Student)"
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the student (e.g., active, inactive)."
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "URL of the student's photo.",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "The date and time the student was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "studentId",
+        "name",
+        "classId",
+        "sectionId"
+      ]
+    },
+    "Class": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Class",
+      "type": "object",
+      "description": "Represents a class in the Abu Huraira Institute School App.",
+      "properties": {
+        "classId": {
+          "type": "string",
+          "description": "Unique identifier for the class."
+        },
+        "className": {
+          "type": "string",
+          "description": "The name of the class (e.g., 'Class 1', 'Class 2')."
+        }
+      },
+      "required": [
+        "classId",
+        "className"
+      ]
+    },
+    "Section": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Section",
+      "type": "object",
+      "description": "Represents a section within a class in the Abu Huraira Institute School App.",
+      "properties": {
+        "sectionId": {
+          "type": "string",
+          "description": "Unique identifier for the section."
+        },
+        "classId": {
+          "type": "string",
+          "description": "Reference to Class. (Relationship: Class 1:N Section)"
+        },
+        "sectionName": {
+          "type": "string",
+          "description": "The name of the section (e.g., 'A', 'B')."
+        }
+      },
+      "required": [
+        "sectionId",
+        "classId",
+        "sectionName"
+      ]
+    },
+    "Subject": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Subject",
+      "type": "object",
+      "description": "Represents a subject taught in the Abu Huraira Institute School App.",
+      "properties": {
+        "subjectId": {
+          "type": "string",
+          "description": "Unique identifier for the subject."
+        },
+        "subjectName": {
+          "type": "string",
+          "description": "The name of the subject (e.g., 'Mathematics', 'Science')."
+        },
+        "classId": {
+          "type": "string",
+          "description": "Reference to Class. (Relationship: Class 1:N Subject)"
+        }
+      },
+      "required": [
+        "subjectId",
+        "subjectName",
+        "classId"
+      ]
+    },
+    "Attendance": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Attendance",
+      "type": "object",
+      "description": "Represents a student's attendance record in the Abu Huraira Institute School App.",
+      "properties": {
+        "studentId": {
+          "type": "string",
+          "description": "Reference to Student. (Relationship: Student 1:N Attendance)"
+        },
+        "classId": {
+          "type": "string",
+          "description": "Reference to Class. (Relationship: Class 1:N Attendance)"
+        },
+        "date": {
+          "type": "string",
+          "description": "The date of the attendance record.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The attendance status (e.g., 'Present', 'Absent')."
+        }
+      },
+      "required": [
+        "studentId",
+        "classId",
+        "date",
+        "status"
+      ]
+    },
+    "Mark": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Mark",
+      "type": "object",
+      "description": "Represents a student's mark in a subject for an exam in the Abu Huraira Institute School App.",
+      "properties": {
+        "studentId": {
+          "type": "string",
+          "description": "Reference to Student. (Relationship: Student 1:N Mark)"
+        },
+        "subjectId": {
+          "type": "string",
+          "description": "Reference to Subject. (Relationship: Subject 1:N Mark)"
+        },
+        "examType": {
+          "type": "string",
+          "description": "The type of exam (e.g., 'Midterm', 'Final')."
+        },
+        "marksObtained": {
+          "type": "number",
+          "description": "The marks obtained by the student."
+        },
+        "totalMarks": {
+          "type": "number",
+          "description": "The total marks for the exam."
+        },
+        "percentage": {
+          "type": "number",
+          "description": "The percentage of marks obtained."
+        }
+      },
+      "required": [
+        "studentId",
+        "subjectId",
+        "examType",
+        "marksObtained",
+        "totalMarks",
+        "percentage"
+      ]
+    },
+    "Homework": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Homework",
+      "type": "object",
+      "description": "Represents a homework assignment in the Abu Huraira Institute School App.",
+      "properties": {
+        "homeworkId": {
+          "type": "string",
+          "description": "Unique identifier for the homework assignment."
+        },
+        "classId": {
+          "type": "string",
+          "description": "Reference to Class. (Relationship: Class 1:N Homework)"
+        },
+        "subjectId": {
+          "type": "string",
+          "description": "Reference to Subject. (Relationship: Subject 1:N Homework)"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the homework assignment."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the homework assignment."
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "The due date for the homework assignment.",
+          "format": "date-time"
+        },
+        "attachmentURL": {
+          "type": "string",
+          "description": "URL of the attachment for the homework assignment.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "homeworkId",
+        "classId",
+        "subjectId",
+        "title",
+        "description",
+        "dueDate"
+      ]
+    },
+    "Fee": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Fee",
+      "type": "object",
+      "description": "Represents a fee payment record in the Abu Huraira Institute School App.",
+      "properties": {
+        "feeId": {
+          "type": "string",
+          "description": "Unique identifier for the fee record."
+        },
+        "studentId": {
+          "type": "string",
+          "description": "Reference to Student. (Relationship: Student 1:N Fee)"
+        },
+        "month": {
+          "type": "string",
+          "description": "The month for which the fee is being paid."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount of the fee."
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the fee payment (e.g., 'Paid', 'Unpaid')."
+        },
+        "paymentDate": {
+          "type": "string",
+          "description": "The date the fee was paid.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "feeId",
+        "studentId",
+        "month",
+        "amount",
+        "status"
+      ]
+    },
+    "Bus": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Bus",
+      "type": "object",
+      "description": "Represents a bus in the Abu Huraira Institute School App.",
+      "properties": {
+        "busId": {
+          "type": "string",
+          "description": "Unique identifier for the bus."
+        },
+        "driverId": {
+          "type": "string",
+          "description": "Reference to User (Driver). (Relationship: User 1:N Bus)"
+        },
+        "routeId": {
+          "type": "string",
+          "description": "Reference to Route. (Relationship: Route 1:N Bus)"
+        },
+        "busNumber": {
+          "type": "string",
+          "description": "The bus number."
+        }
+      },
+      "required": [
+        "busId",
+        "driverId",
+        "routeId",
+        "busNumber"
+      ]
+    },
+    "Route": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Route",
+      "type": "object",
+      "description": "Represents a bus route in the Abu Huraira Institute School App.",
+      "properties": {
+        "routeId": {
+          "type": "string",
+          "description": "Unique identifier for the route."
+        },
+        "routeName": {
+          "type": "string",
+          "description": "The name of the route."
+        },
+        "stops": {
+          "type": "array",
+          "description": "List of the stops.  (Relationship: Route 1:N Stop)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "routeId",
+        "routeName",
+        "stops"
+      ]
+    },
+    "Stop": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Stop",
+      "type": "object",
+      "description": "Represents a stop in the Abu Huraira Institute School App.",
+      "properties": {
+        "stopId": {
+          "type": "string",
+          "description": "Unique identifier for the stop."
+        },
+        "stopName": {
+          "type": "string",
+          "description": "The name of the stop."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude of the stop."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude of the stop."
+        }
+      },
+      "required": [
+        "stopId",
+        "stopName",
+        "latitude",
+        "longitude"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{uid}",
+        "definition": {
+          "entityName": "user",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles.  The 'uid' parameter is the Firebase Auth UID.",
+          "params": [
+            {
+              "name": "uid",
+              "description": "The Firebase Auth UID of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/students/{studentId}",
+        "definition": {
+          "entityName": "student",
+          "schema": {
+            "$ref": "#/backend/entities/Student"
+          },
+          "description": "Stores student profiles.",
+          "params": [
+            {
+              "name": "studentId",
+              "description": "The unique identifier of the student."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/classes/{classId}",
+        "definition": {
+          "entityName": "class",
+          "schema": {
+            "$ref": "#/backend/entities/Class"
+          },
+          "description": "Stores class information.",
+          "params": [
+            {
+              "name": "classId",
+              "description": "The unique identifier of the class."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/sections/{sectionId}",
+        "definition": {
+          "entityName": "section",
+          "schema": {
+            "$ref": "#/backend/entities/Section"
+          },
+          "description": "Stores section information.",
+          "params": [
+            {
+              "name": "sectionId",
+              "description": "The unique identifier of the section."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/subjects/{subjectId}",
+        "definition": {
+          "entityName": "subject",
+          "schema": {
+            "$ref": "#/backend/entities/Subject"
+          },
+          "description": "Stores subject information.",
+          "params": [
+            {
+              "name": "subjectId",
+              "description": "The unique identifier of the subject."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/attendance/{attendanceId}",
+        "definition": {
+          "entityName": "attendance",
+          "schema": {
+            "$ref": "#/backend/entities/Attendance"
+          },
+          "description": "Stores attendance records. The attendanceId should be a combination of studentId, classId, and date for uniqueness.",
+          "params": [
+            {
+              "name": "attendanceId",
+              "description": "The unique identifier for the attendance, formed by studentId, classId and date."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/marks/{markId}",
+        "definition": {
+          "entityName": "mark",
+          "schema": {
+            "$ref": "#/backend/entities/Mark"
+          },
+          "description": "Stores marks information. markId should be a combination of studentId, subjectId, and examType for uniqueness.",
+          "params": [
+            {
+              "name": "markId",
+              "description": "The unique identifier for the mark, formed by studentId, subjectId, and examType."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/homework/{homeworkId}",
+        "definition": {
+          "entityName": "homework",
+          "schema": {
+            "$ref": "#/backend/entities/Homework"
+          },
+          "description": "Stores homework assignments.",
+          "params": [
+            {
+              "name": "homeworkId",
+              "description": "The unique identifier for the homework."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/fees/{feeId}",
+        "definition": {
+          "entityName": "fee",
+          "schema": {
+            "$ref": "#/backend/entities/Fee"
+          },
+          "description": "Stores fee payment records.",
+          "params": [
+            {
+              "name": "feeId",
+              "description": "The unique identifier for the fee payment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/buses/{busId}",
+        "definition": {
+          "entityName": "bus",
+          "schema": {
+            "$ref": "#/backend/entities/Bus"
+          },
+          "description": "Stores bus information.",
+          "params": [
+            {
+              "name": "busId",
+              "description": "The unique identifier for the bus."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/routes/{routeId}",
+        "definition": {
+          "entityName": "route",
+          "schema": {
+            "$ref": "#/backend/entities/Route"
+          },
+          "description": "Stores route information.",
+          "params": [
+            {
+              "name": "routeId",
+              "description": "The unique identifier for the route."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/stops/{stopId}",
+        "definition": {
+          "entityName": "stop",
+          "schema": {
+            "$ref": "#/backend/entities/Stop"
+          },
+          "description": "Stores stop information.",
+          "params": [
+            {
+              "name": "stopId",
+              "description": "The unique identifier for the stop."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and easily debuggable, following the core design principles and strategy mandates. Authorization Independence is achieved by storing user roles directly within the `/users/{uid}` document, eliminating the need for `get()` calls in security rules. Path-based ownership is heavily utilized for user-owned data, such as students and attendance records. Data segregation is employed to ensure that collections contain documents with similar security requirements. Collaborative data isn't present, simplifying the security model. QAPs (Rules are not filters) is achieved by structural segregation. Invariants such as ownership and timestamps can be enforced with the security rules. The design favors simplicity and clarity, making the authorization intent explicit and easily auditable."
+  }
+}
