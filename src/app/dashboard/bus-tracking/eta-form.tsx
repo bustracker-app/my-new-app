@@ -72,7 +72,7 @@ export default function EtaForm() {
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField control={form.control} name="busLocationLatitude" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Bus Latitude</FormLabel>
@@ -95,7 +95,7 @@ export default function EtaForm() {
                                 <FormMessage />
                             </FormItem>
                         )} />
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                              <FormField control={form.control} name="stopLatitude" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Stop Latitude</FormLabel>
@@ -129,7 +129,7 @@ export default function EtaForm() {
                 {etaResult && (
                     <div className="mt-6 space-y-4">
                         <h3 className="text-lg font-semibold font-headline">Calculation Result</h3>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Card className="bg-secondary/50">
                                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                                     <CardTitle className="text-sm font-medium">ETA</CardTitle>
