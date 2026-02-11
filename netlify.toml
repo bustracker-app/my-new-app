@@ -1,3 +1,6 @@
 [build]
   command = "next build"
   publish = ".next"
+
+[build.cache]
+  paths = [".next/cache"]
