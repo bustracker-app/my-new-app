@@ -20,12 +20,18 @@ service cloud.firestore {
 
     // Rules for the 'chats' collection
     match /chats/{chatId} {
-      // Allow reading/writing a single chat doc only if the user is a participant.
-      allow get, write: if isSignedIn() && request.auth.uid in resource.data.participants;
+      // Allow reading a single chat doc only if the user is a participant.
+      allow get: if isSignedIn() && request.auth.uid in resource.data.participants;
       
-      // Allow listing chats only when the query filters for chats the user is a participant in.
-      // This rule validates the `where("participants", "array-contains", currentUser.uid)` query.
-      allow list: if isSignedIn() && request.query.filters.participants.hasAny([request.auth.uid]);
+      // Allow creating a chat doc only if the user is a participant.
+      allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
+
+      // Allow updating a chat doc only if the user is a participant.
+      allow update: if isSignedIn() && request.auth.uid in resource.data.participants;
+
+      // Allow listing chats only if the query filters for chats where the user is a participant.
+      // This rule specifically validates `where("participants", "array-contains", currentUser.uid)`
+      allow list: if isSignedIn() && request.auth.uid in request.query.filters.participants;
     }
 
     // Rules for the 'messages' subcollection
