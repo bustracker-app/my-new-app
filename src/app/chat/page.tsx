@@ -13,6 +13,7 @@ import ChatList from './components/chat-list';
 import UserList from './components/user-list';
 import ChatWindow from './components/chat-window';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 export default function ChatPage() {
   const [selectedChat, setSelectedChat] = useState<{ id: string; otherParticipantId: string } | null>(null);
@@ -109,13 +110,17 @@ export default function ChatPage() {
 
         <footer className="mt-auto border-t border-primary/20 p-2">
             <div className="flex items-center justify-around">
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary/80 hover:bg-primary/10 hover:text-primary">
-                    <Home className="h-5 w-5" />
-                    <span className="sr-only">Home</span>
+                <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary/80 hover:bg-primary/10 hover:text-primary">
+                    <Link href="/chat">
+                        <Home className="h-5 w-5" />
+                        <span className="sr-only">Home</span>
+                    </Link>
                 </Button>
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary/80 hover:bg-primary/10 hover:text-primary">
-                    <User className="h-5 w-5" />
-                    <span className="sr-only">Profile</span>
+                <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary/80 hover:bg-primary/10 hover:text-primary">
+                    <Link href="/profile">
+                        <User className="h-5 w-5" />
+                        <span className="sr-only">Profile</span>
+                    </Link>
                 </Button>
             </div>
             <div className="mt-1 text-center text-xs font-mono text-primary/60 overflow-hidden whitespace-nowrap" title={hackyText}>
