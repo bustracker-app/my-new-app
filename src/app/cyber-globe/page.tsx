@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ShieldAlert, ShieldCheck, ShieldOff } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, ShieldCheck, ShieldOff, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -137,22 +137,28 @@ export default function CyberGlobePage() {
         <div className="fixed inset-0 bg-black text-green-400 font-code overflow-hidden">
             <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-20"></canvas>
             
-            <div className="relative z-10 flex flex-col h-full w-full">
-                {/* Header */}
-                <header className="flex items-center justify-between p-4 bg-black/50 backdrop-blur-sm border-b border-primary/20">
-                    <Button variant="ghost" size="icon" onClick={() => router.push('/chat')}>
-                        <ArrowLeft className="h-5 w-5 text-primary" />
+            <div className="relative z-10 flex flex-col h-full w-full p-4 md:p-6">
+                {/* Header-like elements */}
+                <div className="absolute top-4 left-4 md:top-6 md:left-6">
+                    <h1 className="font-headline text-2xl md:text-3xl text-primary text-glow-primary">Baradari.web</h1>
+                </div>
+                 <div className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center gap-2">
+                    <Button variant="outline" className="bg-black/30 border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300">
+                        <Globe className="h-4 w-4 mr-2 animate-spin-slow" />
+                        View Cyber Attacks
                     </Button>
-                    <h1 className="font-headline text-2xl text-primary text-glow-primary">Live Cyber Attack Globe</h1>
-                    <div className="w-10"></div>
-                </header>
+                </div>
 
                 {/* Main Content */}
-                <main className="flex-1 grid grid-cols-12 grid-rows-6 gap-4 p-4">
-                    {/* Left Panel: Logs */}
-                    <div className="col-span-12 md:col-span-3 row-span-6 glassmorphism-hacker p-4 overflow-hidden">
+                <main className="flex-1 grid grid-cols-12 grid-rows-6 gap-4 pt-16">
+                    {/* Left Panel: Logs & Home button */}
+                    <div className="col-span-12 md:col-span-3 row-span-6 glassmorphism-hacker p-4 overflow-hidden flex flex-col">
+                        <Button variant="outline" className="mb-4 bg-black/50 w-fit" onClick={() => router.push('/chat')}>
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            Home
+                        </Button>
                         <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2">ATTACK LOGS</h2>
-                        <ul className="space-y-2 text-xs overflow-y-auto h-full pr-2">
+                        <ul className="space-y-2 text-xs overflow-y-auto h-full pr-2 flex-1">
                            {logs.map(log => (
                                <li key={log.id} className="flex items-start gap-2 animate-fade-in">
                                    <LogIcon status={log.status} />
@@ -166,10 +172,11 @@ export default function CyberGlobePage() {
                     {/* Center: Globe */}
                     <div className="relative col-span-12 md:col-span-6 row-span-6 md:row-span-4 overflow-hidden">
                          <Image 
-                            src="https://images.unsplash.com/photo-1545156522-90779e1e35d1?q=80&w=2070&auto=format&fit=crop"
-                            alt="World Map"
+                            src="https://images.unsplash.com/photo-1593369528447-c07925c3ba32?q=80&w=2000&auto=format&fit=crop"
+                            alt="Digital World Map"
                             fill
-                            className="object-cover opacity-30"
+                            className="object-contain opacity-60"
+                            data-ai-hint="digital world map"
                          />
                          <div className="absolute inset-0 radar-sweep-container">
                             <div className="radar-sweep-line"></div>
@@ -192,6 +199,25 @@ export default function CyberGlobePage() {
                                 );
                             })}
                          </svg>
+                         {/* Hotspots */}
+                         <div className="absolute top-[35%] left-[52%]">
+                            <div className="relative flex h-2 w-2">
+                                <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
+                                <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
+                            </div>
+                         </div>
+                         <div className="absolute top-[40%] left-[25%]">
+                             <div className="relative flex h-2 w-2">
+                                <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
+                                <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
+                            </div>
+                         </div>
+                          <div className="absolute top-[45%] left-[75%]">
+                             <div className="relative flex h-2 w-2">
+                                <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
+                                <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
+                            </div>
+                         </div>
                     </div>
 
                     {/* Top Right: Issues */}
@@ -223,7 +249,7 @@ export default function CyberGlobePage() {
                 </main>
                 
                 {/* Footer */}
-                <footer className="text-center p-2 bg-black/50 text-xs text-muted-foreground">
+                <footer className="absolute bottom-2 left-1/2 -translate-x-1/2 text-center p-2 bg-black/50 text-xs text-muted-foreground rounded-md">
                     Simulation Interface – For Visual Experience Only
                 </footer>
             </div>

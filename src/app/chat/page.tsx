@@ -88,14 +88,23 @@ export default function ChatPage() {
               </Avatar>
               <span className="font-bold">{userProfile?.username}</span>
             </div>
-            <Button
-              onClick={handleLogout}
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-1">
+                <Button asChild variant="ghost" size="icon" className="h-8 w-8 text-red-500/80 hover:bg-red-500/10 hover:text-red-500 radar-pulse" title="View Cyber Attacks">
+                    <Link href="/cyber-globe">
+                        <Globe className="h-4 w-4 animate-spin-slow" />
+                        <span className="sr-only">Cyber Globe</span>
+                    </Link>
+                </Button>
+                <Button
+                  onClick={handleLogout}
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  title="Logout"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+            </div>
           </div>
         </div>
 
@@ -114,12 +123,6 @@ export default function ChatPage() {
                     <Link href="/chat">
                         <Home className="h-5 w-5" />
                         <span className="sr-only">Home</span>
-                    </Link>
-                </Button>
-                 <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-full text-red-500/80 hover:bg-red-500/10 hover:text-red-500 border border-red-500/50 glow-shadow-red radar-pulse">
-                    <Link href="/cyber-globe">
-                        <Globe className="h-5 w-5 animate-spin-slow" />
-                        <span className="sr-only">Cyber Globe</span>
                     </Link>
                 </Button>
                 <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-full text-primary/80 hover:bg-primary/10 hover:text-primary">
