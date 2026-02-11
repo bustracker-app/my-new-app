@@ -43,17 +43,10 @@ export default function HomePage() {
     }
     
     // If the user is authenticated but we can't find their profile document,
-    // this is an inconsistent state. The safest action is to log them out
-    // and send them back to the login page to prevent an infinite loop.
+    // redirect them to a page to create it. This handles old auth accounts
+    // that don't have a corresponding Firestore document.
     if (!userProfile) {
-        toast({ 
-            variant: "destructive",
-            title: 'User Profile Not Found', 
-            description: 'There was an issue loading your profile. Please log in again.' 
-        });
-        auth.signOut().finally(() => {
-          router.replace('/login');
-        });
+        router.replace('/create-profile');
         return;
     }
 
