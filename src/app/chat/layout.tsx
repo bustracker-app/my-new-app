@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useUser, useFirestore } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import { doc, updateDoc } from 'firebase/firestore';
+import NotificationBar from '@/components/notification-bar';
+import MessageListener from '@/components/message-listener';
 
 export default function ChatLayout({ children }: { children: ReactNode }) {
   const { user, isUserLoading } = useUser();
@@ -66,5 +68,11 @@ export default function ChatLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  return <div className="h-screen w-full">{children}</div>;
+  return (
+    <div className="h-screen w-full">
+      <NotificationBar />
+      <MessageListener />
+      {children}
+    </div>
+  );
 }
