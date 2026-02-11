@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, KeyRound } from 'lucide-react';
+import AppLockAnimation from './components/app-lock-animation';
 
 const formSchema = z.object({
   password: z.string().min(1, { message: 'App Lock Key is required.' }),
@@ -24,6 +25,7 @@ type UserProfile = {
 
 export default function AppLockPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(false);
   const { user } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
@@ -53,11 +55,19 @@ export default function AppLockPage() {
 
     if (hashedPassword === userProfile.appLockPassword) {
       sessionStorage.setItem('app_unlocked', 'true');
-      router.replace('/chat');
+      setShowAnimation(true);
     } else {
       toast({ variant: 'destructive', title: 'Access Denied', description: 'Incorrect App Lock Key.' });
+      setIsLoading(false);
     }
-    setIsLoading(false);
+  }
+
+  const handleAnimationComplete = () => {
+    router.replace('/chat');
+  };
+
+  if (showAnimation) {
+    return <AppLockAnimation onComplete={handleAnimationComplete} />;
   }
 
   return (
@@ -90,7 +100,7 @@ export default function AppLockPage() {
                   )}
                 />
                 <Button type="submit" disabled={isLoading || isProfileLoading} className="w-full glow-shadow-primary font-headline">
-                  {isLoading || isProfileLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Unlock'}
+                  {isLoading || isProfileLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Grant Access'}
                 </Button>
               </form>
             </Form>
