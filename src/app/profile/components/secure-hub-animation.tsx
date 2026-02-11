@@ -1,197 +1,111 @@
 'use client';
 
-import { useEffect, useState, useMemo, useRef } from 'react';
-import { Fingerprint, ScanFace, ShieldCheck } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 
-const Typewriter = ({ text, onComplete, speed = 50 }: { text: string; onComplete?: () => void; speed?: number }) => {
-    const [displayedText, setDisplayedText] = useState('');
-    
-    useEffect(() => {
-        setDisplayedText('');
-        let i = 0;
-        if (text.length === 0) {
-            onComplete?.();
-            return;
-        }
-        const intervalId = setInterval(() => {
-            setDisplayedText(text.slice(0, i + 1));
-            i++;
-            if (i >= text.length) {
-                clearInterval(intervalId);
-                onComplete?.();
-            }
-        }, speed);
-        return () => clearInterval(intervalId);
-    }, [text, onComplete, speed]);
+// A component to display text with a typewriter effect
+const Typewriter = ({
+  lines,
+  onComplete,
+  speed = 40,
+}: {
+  lines: string[];
+  onComplete?: () => void;
+  speed?: number;
+}) => {
+  const [text, setText] = useState('');
+  const [lineIndex, setLineIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
 
-    return <span dangerouslySetInnerHTML={{ __html: displayedText }} />;
+  useEffect(() => {
+    if (lineIndex >= lines.length) {
+      onComplete?.();
+      return;
+    }
+
+    const currentLine = lines[lineIndex];
+
+    if (charIndex < currentLine.length) {
+      const timeout = setTimeout(() => {
+        setText((prev) => prev + currentLine[charIndex]);
+        setCharIndex((prev) => prev + 1);
+      }, speed);
+      return () => clearTimeout(timeout);
+    } else {
+      const timeout = setTimeout(() => {
+        setText((prev) => prev + '\n');
+        setLineIndex((prev) => prev + 1);
+        setCharIndex(0);
+      }, 300); // Pause before next line
+      return () => clearTimeout(timeout);
+    }
+  }, [lineIndex, charIndex, lines, onComplete, speed]);
+
+  return (
+    <div className="whitespace-pre-wrap">
+      {text}
+      <span className="inline-block animate-pulse">_</span>
+    </div>
+  );
 };
 
-const hackingCode = `
-[INFO] Bypassing standard security layers...
-[INIT] Engaging Quantum-Resistant Encryption Matrix...
-[AUTH] User Identity Verified: UID-4B2A-9C7E
-[CMD] command.execute(new QuantumFirewall());
-[LOG] Firewall rule added: DENY ALL INGRESS FROM threat_net:*
-[LOG] Establishing secure tunnel via endpoint...
-[OK] Tunnel established. Data stream integrity: 100%
-[CMD] command.execute(new SecurityProtocol('v7.2.1'));
-[LOG] Protocol v7.2.1 installed.
-[SYS] System secured. Locking parameters...
-[SUCCESS] Secure Mode Activated.
-`;
-
 export default function SecureHubAnimation({ onComplete }: { onComplete: () => void }) {
-    const [stage, setStage] = useState(0); // 0: Glitch, 1: Scans, 2: Terminal, 3: Progress, 4: Granted, 5: Redirect
-    const [progress, setProgress] = useState(0);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [typedCode, setTypedCode] = useState('');
+  const [stage, setStage] = useState<'typing' | 'progress' | 'finished'>('typing');
 
-    const textSequence = useMemo(() => [
-        "Initializing Quantum Firewall",
-        "Establishing Secure Tunnel",
-        "Installing Security Protocol"
-    ], []);
+  const typingLines = [
+    'Initializing secure hub...',
+    'Verifying encrypted key...',
+    'Authenticating user identity...',
+    'Establishing secure connection...',
+    'Loading security layer...',
+    'Access granted.',
+  ];
 
-    useEffect(() => {
-        // Stage manager
-        const timers: NodeJS.Timeout[] = [];
-        switch(stage) {
-            case 0: // Glitch
-                timers.push(setTimeout(() => setStage(1), 200));
-                break;
-            case 1: // Scans
-                timers.push(setTimeout(() => setStage(2), 1500));
-                break;
-            case 2: // Terminal
-                // Wait for typewriter to finish
-                break;
-            case 3: // Progress
-                const progressInterval = setInterval(() => {
-                    setProgress(p => {
-                        if (p >= 100) {
-                            clearInterval(progressInterval);
-                            timers.push(setTimeout(() => setStage(4), 200));
-                            return 100;
-                        }
-                        return p + 2;
-                    });
-                }, 20);
-                timers.push(progressInterval as unknown as NodeJS.Timeout);
-                break;
-            case 4: // Granted
-                timers.push(setTimeout(() => setStage(5), 1000));
-                break;
-            case 5: // Redirect
-                timers.push(setTimeout(onComplete, 500));
-                break;
-        }
-        return () => timers.forEach(clearTimeout);
-    }, [stage, onComplete]);
-    
-    // Matrix rain effect
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+  useEffect(() => {
+    if (stage === 'progress') {
+      // Duration for the progress bar animation
+      const timer = setTimeout(() => {
+        setStage('finished');
+      }, 1500);
+      return () => clearTimeout(timer);
+    } else if (stage === 'finished') {
+      // Duration for the final fade-out before completing
+      const timer = setTimeout(() => {
+        onComplete();
+      }, 750);
+      return () => clearTimeout(timer);
+    }
+  }, [stage, onComplete]);
 
-        const setCanvasSize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        setCanvasSize();
-        window.addEventListener('resize', setCanvasSize);
-
-        const alphabet = '01';
-        const fontSize = 16;
-        const columns = Math.ceil(canvas.width / fontSize);
-        const rainDrops: number[] = Array(columns).fill(1);
-
-        const draw = () => {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'hsl(var(--primary))';
-            ctx.font = fontSize + 'px monospace';
-            for (let i = 0; i < rainDrops.length; i++) {
-                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
-            }
-        };
-        const intervalId = setInterval(draw, 50);
-        return () => {
-            clearInterval(intervalId);
-            window.removeEventListener('resize', setCanvasSize);
-        }
-    }, []);
-
-    return (
-        <div className={cn("fixed inset-0 z-50 flex flex-col items-center justify-center bg-black font-code text-green-400 p-4", stage === 0 && 'animate-glitch-fast')}>
-            <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-10"></canvas>
-            <Image 
-                src="https://images.unsplash.com/photo-1593369528447-c07925c3ba32?q=80&w=2000&auto=format&fit=crop"
-                alt="Digital World Map"
-                layout="fill"
-                objectFit="cover"
-                className="absolute inset-0 z-0 opacity-10"
-                data-ai-hint="digital world map"
+  return (
+    <div
+      className={cn(
+        'fixed inset-0 z-50 flex items-center justify-center bg-[#0A0F1F] font-code text-green-400 transition-opacity duration-500',
+        stage === 'finished' ? 'opacity-0' : 'opacity-100'
+      )}
+    >
+      <div className="w-full max-w-lg p-4">
+        <div className="rounded-lg border border-primary/20 bg-black/30 p-6 shadow-[0_0_20px_hsl(var(--primary)_/_0.2)]">
+          {stage === 'typing' && (
+            <Typewriter
+              lines={typingLines}
+              onComplete={() => setStage('progress')}
             />
-            <div className="relative z-10 w-full h-full flex items-center justify-center">
-                
-                {/* Stage 1: Scans */}
-                {stage === 1 && (
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 animate-fade-in">
-                        <div className="flex flex-col items-center gap-4">
-                            <Fingerprint className="h-24 w-24 text-primary animate-pulse" />
-                            <p className="font-headline text-lg text-primary text-glow-primary">VERIFYING BIOMETRICS</p>
-                        </div>
-                        <div className="flex flex-col items-center gap-4">
-                            <ScanFace className="h-24 w-24 text-primary animate-pulse" />
-                            <p className="font-headline text-lg text-primary text-glow-primary">ANALYSING FACIAL SCAN</p>
-                        </div>
-                    </div>
-                )}
+          )}
 
-                {/* Stage 2: Hacking Terminal */}
-                {stage === 2 && (
-                    <div className="w-full max-w-4xl h-3/4 glassmorphism-hacker p-4 overflow-y-auto text-xs md:text-sm">
-                        <span className="text-green-500/80">$ </span>
-                        <Typewriter text={hackingCode.replace(/\n/g, '<br/>')} speed={1} onComplete={() => setStage(3)} />
-                    </div>
-                )}
-                
-                {/* Stage 3: Progress Bar & Text */}
-                {stage === 3 && (
-                    <div className="w-full max-w-2xl flex flex-col items-center gap-6 animate-fade-in">
-                        <h2 className="font-headline text-2xl text-primary text-glow-primary animate-text-flicker">
-                            {progress < 33 ? textSequence[0] : progress < 66 ? textSequence[1] : textSequence[2]}...
-                        </h2>
-                        <div className="w-full h-4 bg-primary/20 border border-primary/50 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary glow-shadow-primary" style={{width: `${progress}%`}}></div>
-                        </div>
-                        <p className="text-4xl font-bold">{progress}%</p>
-                    </div>
-                )}
-
-                {/* Stage 4 & 5: Access Granted & Redirect */}
-                {(stage === 4 || stage === 5) && (
-                     <div className="text-center animate-fade-in">
-                        <ShieldCheck className="h-32 w-32 mx-auto text-primary animate-shield-particles text-glow-primary" />
-                        <h2 className="font-headline text-5xl mt-4 text-primary text-glow-primary animate-text-flicker">
-                            ACCESS GRANTED
-                        </h2>
-                         {stage === 5 && (
-                            <p className="mt-4 text-lg text-muted-foreground">Redirecting to Secure Hub...</p>
-                         )}
-                    </div>
-                )}
+          {(stage === 'progress' || stage === 'finished') && (
+            <div className="space-y-3">
+              <p className="text-green-400">Secure Mode Activated</p>
+              <p className="text-sm text-muted-foreground">
+                Redirecting to Application...
+              </p>
+              <div className="h-1 w-full overflow-hidden rounded-full bg-primary/20">
+                <div className="h-full animate-fill-progress rounded-full bg-green-400"></div>
+              </div>
             </div>
+          )}
         </div>
-    )
+      </div>
+    </div>
+  );
 }
