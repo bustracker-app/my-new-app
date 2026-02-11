@@ -8,10 +8,8 @@ service cloud.firestore {
 
     // Rules for the 'users' collection
     match /users/{userId} {
-      // Anyone can see a user's basic, non-sensitive public profile info
-      allow get: if isSignedIn();
-      // Only the authenticated user can see their own full profile
-      allow read: if isSignedIn() && request.auth.uid == userId;
+      // Anyone signed in can view user profiles or list all users.
+      allow read: if isSignedIn();
       // A user can only create their own profile, and the UID must match.
       allow create: if isSignedIn() && request.auth.uid == userId;
       // A user can only update their own profile.
@@ -22,8 +20,12 @@ service cloud.firestore {
 
     // Rules for the 'chats' collection
     match /chats/{chatId} {
-      // Allow read and write only if the user is a participant in the chat.
-      allow read, write: if isSignedIn() && request.auth.uid in resource.data.participants;
+      // Allow reading/writing a single chat doc only if the user is a participant.
+      allow get, write: if isSignedIn() && request.auth.uid in resource.data.participants;
+      
+      // Allow listing chats only when the query filters for chats the user is a participant in.
+      // This rule validates the `where("participants", "array-contains", currentUser.uid)` query.
+      allow list: if isSignedIn() && request.query.filters.participants.hasAny([request.auth.uid]);
     }
 
     // Rules for the 'messages' subcollection
