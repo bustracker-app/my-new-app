@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ShieldCheck } from 'lucide-react';
+import LoginAnimation from './components/login-animation';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -22,6 +23,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(false);
   const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -40,20 +42,23 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       // Clear session storage on new login
       sessionStorage.removeItem('app_unlocked');
-      toast({
-        title: 'Authentication Successful',
-        description: 'Secure channel established. Welcome back.',
-      });
-      router.push('/'); // Redirect to root to trigger app lock check
+      setShowAnimation(true);
     } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Authentication Failed',
         description: error.message || 'Please check your credentials and try again.',
       });
-    } finally {
       setIsLoading(false);
     }
+  }
+
+  const handleAnimationComplete = () => {
+    router.push('/'); // Redirect to root to trigger app lock check
+  };
+
+  if (showAnimation) {
+    return <LoginAnimation onComplete={handleAnimationComplete} />;
   }
 
   return (

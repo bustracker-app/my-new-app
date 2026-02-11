@@ -1,0 +1,1 @@
+Please place your 'access-granted.mp3' audio file in this directory for the login animation sound to work.
