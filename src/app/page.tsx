@@ -2,9 +2,10 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useDoc, useFirestore, useUser, useMemoFirebase, useAuth } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import { doc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 type UserProfile = {
   appLockEnabled: boolean;
@@ -12,8 +13,10 @@ type UserProfile = {
 
 export default function HomePage() {
   const { user, isUserLoading } = useUser();
+  const auth = useAuth();
   const router = useRouter();
   const firestore = useFirestore();
+  const { toast } = useToast();
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -39,11 +42,17 @@ export default function HomePage() {
       return;
     }
     
-    // This can happen for a newly signed up user before the profile is available.
-    // The signup flow redirects them to /set-app-lock, so this page won't be hit immediately.
-    // If they land here somehow without a profile, login is the safest place to go.
+    // If the user is authenticated but we can't find their profile document,
+    // this is an inconsistent state. The safest action is to log them out
+    // and send them back to the login page to prevent an infinite loop.
     if (!userProfile) {
-        router.replace('/login');
+        toast({ 
+            variant: "destructive",
+            title: 'User Profile Not Found', 
+            description: 'There was an issue loading your profile. Please log in again.' 
+        });
+        auth.signOut();
+        // The onAuthStateChanged listener will then redirect to /login.
         return;
     }
 
@@ -59,7 +68,7 @@ export default function HomePage() {
     // If app lock is not enabled, or is already unlocked, go to chat
     router.replace('/chat');
 
-  }, [user, isUserLoading, userProfile, isProfileLoading, router]);
+  }, [user, isUserLoading, userProfile, isProfileLoading, router, auth, toast]);
 
 
   return (
