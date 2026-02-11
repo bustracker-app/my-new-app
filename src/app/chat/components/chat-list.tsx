@@ -1,6 +1,6 @@
 'use client';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from "@/firebase";
-import { collection, query, where, orderBy } from "firebase/firestore";
+import { collection, query, where } from "firebase/firestore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2 } from "lucide-react";
 import { useMemo } from "react";
@@ -32,10 +32,10 @@ export default function ChatList({ onSelectChat, selectedChatId }: ChatListProps
     
     const chatsQuery = useMemoFirebase(() => {
         if (!firestore || !currentUser) return null;
+        // Removed orderBy("lastMessageTime", "desc") to fix security rule conflict
         return query(
             collection(firestore, "chats"), 
-            where("participants", "array-contains", currentUser.uid),
-            orderBy("lastMessageTime", "desc")
+            where("participants", "array-contains", currentUser.uid)
         );
     }, [firestore, currentUser]);
     
@@ -56,11 +56,22 @@ export default function ChatList({ onSelectChat, selectedChatId }: ChatListProps
             </div>
         )
     }
+    
+    // Manually sort chats by lastMessageTime on the client-side
+    const sortedChats = useMemo(() => {
+        if (!chats) return [];
+        return [...chats].sort((a, b) => {
+            const timeA = a.lastMessageTime?.seconds || 0;
+            const timeB = b.lastMessageTime?.seconds || 0;
+            return timeB - timeA;
+        });
+    }, [chats]);
+
 
     return (
         <div className="p-2 space-y-1">
             <h2 className="p-2 text-xs font-bold uppercase text-muted-foreground">Messages</h2>
-            {chats?.map((chat) => {
+            {sortedChats?.map((chat) => {
                 const otherParticipantId = chat.participants.find(p => p !== currentUser?.uid);
                 if (!otherParticipantId) return null;
                 

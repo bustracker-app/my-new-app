@@ -7,15 +7,15 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
+      // Any signed-in user can read user profiles (for searching/starting chats).
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update: if isSignedIn() && request.auth.uid == userId;
-      allow delete: if false;
+      // A user can only write to their own profile.
+      allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
     match /chats/{chatId} {
       // A user can read or write a chat document if they are a participant.
-      // This single rule covers get, list, and all queries.
+      // This rule implicitly allows queries like `where('participants', 'array-contains', request.auth.uid)`.
       allow read, write: if isSignedIn() && request.auth.uid in resource.data.participants;
     }
 
