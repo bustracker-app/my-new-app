@@ -137,26 +137,74 @@ export default function CyberGlobePage() {
         <div className="fixed inset-0 bg-black text-green-400 font-code overflow-hidden">
             <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-20"></canvas>
             
-            <div className="relative z-10 flex flex-col h-full w-full p-4 md:p-6">
+            <div className="relative z-10 flex flex-col h-full w-full">
                 {/* Header-like elements */}
-                <div className="absolute top-4 left-4 md:top-6 md:left-6">
+                <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
                     <h1 className="font-headline text-2xl md:text-3xl text-primary text-glow-primary">Baradari.web</h1>
                 </div>
-                 <div className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center gap-2">
-                    <Button variant="outline" className="bg-black/30 border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300">
-                        <Globe className="h-4 w-4 mr-2 animate-spin-slow" />
-                        View Cyber Attacks
+                 <div className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center gap-2 z-20">
+                    <Button variant="outline" className="bg-black/50" onClick={() => router.push('/chat')}>
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Home
                     </Button>
                 </div>
 
-                {/* Main Content */}
-                <main className="flex-1 grid grid-cols-12 grid-rows-6 gap-4 pt-16">
-                    {/* Left Panel: Logs & Home button */}
-                    <div className="col-span-12 md:col-span-3 row-span-6 glassmorphism-hacker p-4 overflow-hidden flex flex-col">
-                        <Button variant="outline" className="mb-4 bg-black/50 w-fit" onClick={() => router.push('/chat')}>
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            Home
-                        </Button>
+                {/* Mobile view: Globe fills screen */}
+                <main className="md:hidden relative flex-1">
+                    <Image 
+                        src="https://images.unsplash.com/photo-1593369528447-c07925c3ba32?q=80&w=2000&auto=format&fit=crop"
+                        alt="Digital World Map"
+                        layout="fill"
+                        objectFit="contain"
+                        className="opacity-60"
+                        data-ai-hint="digital world map"
+                    />
+                    <div className="absolute inset-0 radar-sweep-container">
+                        <div className="radar-sweep-line"></div>
+                    </div>
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        {attacks.map(attack => {
+                            const from = countryCoords[attack.from];
+                            const to = countryCoords[attack.to];
+                            const controlX = (from.x + to.x) / 2 + (from.y - to.y) / 4;
+                            const controlY = (from.y + to.y) / 2 - (from.x - to.x) / 4;
+                            return (
+                                <path
+                                    key={attack.id}
+                                    d={`M${from.x},${from.y} Q${controlX},${controlY} ${to.x},${to.y}`}
+                                    stroke="hsl(var(--destructive))"
+                                    strokeWidth="0.3"
+                                    fill="none"
+                                    className="attack-line"
+                                />
+                            );
+                        })}
+                    </svg>
+                    {/* Hotspots */}
+                    <div className="absolute top-[35%] left-[52%]">
+                        <div className="relative flex h-2 w-2">
+                            <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
+                            <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
+                        </div>
+                    </div>
+                    <div className="absolute top-[40%] left-[25%]">
+                        <div className="relative flex h-2 w-2">
+                            <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
+                            <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
+                        </div>
+                    </div>
+                    <div className="absolute top-[45%] left-[75%]">
+                        <div className="relative flex h-2 w-2">
+                            <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></div>
+                            <div className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></div>
+                        </div>
+                    </div>
+                </main>
+
+                {/* Desktop view: Grid layout */}
+                <main className="hidden md:grid flex-1 grid-cols-12 grid-rows-6 gap-4 p-4 md:p-6 pt-16">
+                    {/* Left Panel: Logs */}
+                    <div className="col-span-3 row-span-6 glassmorphism-hacker p-4 overflow-hidden flex flex-col">
                         <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2">ATTACK LOGS</h2>
                         <ul className="space-y-2 text-xs overflow-y-auto h-full pr-2 flex-1">
                            {logs.map(log => (
@@ -170,7 +218,7 @@ export default function CyberGlobePage() {
                     </div>
 
                     {/* Center: Globe */}
-                    <div className="relative col-span-12 md:col-span-6 row-span-6 md:row-span-4 overflow-hidden">
+                    <div className="relative col-span-6 row-span-4 overflow-hidden">
                          <Image 
                             src="https://images.unsplash.com/photo-1593369528447-c07925c3ba32?q=80&w=2000&auto=format&fit=crop"
                             alt="Digital World Map"
@@ -221,7 +269,7 @@ export default function CyberGlobePage() {
                     </div>
 
                     {/* Top Right: Issues */}
-                    <div className="col-span-12 md:col-span-3 row-span-6 md:row-span-2 glassmorphism-hacker p-4">
+                    <div className="col-span-3 row-span-2 glassmorphism-hacker p-4">
                         <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2">TOP CYBER ISSUES</h2>
                         <ul className="space-y-3 text-sm">
                             {topIssues.map((issue, index) => (
@@ -235,7 +283,7 @@ export default function CyberGlobePage() {
                     </div>
 
                     {/* Bottom Right: Status */}
-                     <div className="col-span-12 md:col-span-3 row-span-6 md:row-span-4 glassmorphism-hacker p-4 flex flex-col justify-between">
+                     <div className="col-span-3 row-span-4 glassmorphism-hacker p-4 flex flex-col justify-between">
                         <div>
                             <h2 className="font-bold text-primary border-b border-primary/50 pb-2 mb-2">SYSTEM STATUS</h2>
                             <p className="text-green-400 text-glow-green text-lg font-bold">ALL SYSTEMS NOMINAL</p>
@@ -249,10 +297,12 @@ export default function CyberGlobePage() {
                 </main>
                 
                 {/* Footer */}
-                <footer className="absolute bottom-2 left-1/2 -translate-x-1/2 text-center p-2 bg-black/50 text-xs text-muted-foreground rounded-md">
+                <footer className="absolute bottom-2 left-1/2 -translate-x-1/2 text-center p-2 bg-black/50 text-xs text-muted-foreground rounded-md z-20">
                     Simulation Interface – For Visual Experience Only
                 </footer>
             </div>
         </div>
     );
 }
+
+    
