@@ -72,6 +72,11 @@
     box-shadow: 0 0 15px 2px hsl(140 80% 50% / 0.5);
   }
 
+  .focus-glow-green:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsla(140, 80%, 50%, 0.7);
+  }
+
   /* For cyber-globe page */
   .glassmorphism-hacker {
     @apply bg-black/50 backdrop-blur-sm border border-primary/20 rounded-lg;

@@ -8,18 +8,22 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { LogOut, Home, User, Shield, ShieldAlert } from 'lucide-react';
+import { LogOut, Home, User, Shield, ShieldAlert, Settings } from 'lucide-react';
 import ChatList from './components/chat-list';
 import UserList from './components/user-list';
 import ChatWindow from './components/chat-window';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import SecureHubAnimation from '../profile/components/secure-hub-animation';
+import SettingsPanel from './components/settings-panel';
+import UpdateSettingsAnimation from './components/update-settings-animation';
 
 export default function ChatPage() {
   const [selectedChat, setSelectedChat] = useState<{ id: string; otherParticipantId: string } | null>(null);
   const [hackyText, setHackyText] = useState('');
   const [showSecureHub, setShowSecureHub] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [showUpdateAnimation, setShowUpdateAnimation] = useState(false);
   const auth = useAuth();
   const { user: authUser } = useUser();
   const firestore = useFirestore();
@@ -67,22 +71,47 @@ export default function ChatPage() {
     setSelectedChat({ id: chatId, otherParticipantId });
   };
   
+  const handleSaveSettings = () => {
+    setIsSettingsOpen(false);
+    setShowUpdateAnimation(true);
+  };
+
   if (showSecureHub) {
     return <SecureHubAnimation onComplete={() => setShowSecureHub(false)} />;
+  }
+  
+  if (showUpdateAnimation) {
+    return <UpdateSettingsAnimation onComplete={() => setShowUpdateAnimation(false)} />;
   }
 
   return (
     <div className="flex h-screen w-full font-code text-foreground glassmorphism">
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onSave={handleSaveSettings}
+      />
       <div className={cn(
         "flex w-full flex-col border-r border-primary/20 md:w-full md:max-w-xs md:flex",
         selectedChat ? "hidden" : "flex"
       )}>
         <div className="border-b border-primary/20 p-4">
-          <div className="text-center">
-            <h1 className="font-headline text-2xl font-bold text-primary">
-              BARADARI
-            </h1>
-            <p className="text-xs text-muted-foreground">(BOI KYA WANAN)</p>
+          <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                  <Button
+                      onClick={() => setIsSettingsOpen(true)}
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-primary/80 hover:bg-primary/10 hover:text-primary hover:glow-shadow-primary"
+                      title="Settings"
+                  >
+                      <Settings className="h-5 w-5" />
+                  </Button>
+                  <h1 className="font-headline text-xl font-bold text-primary">
+                      BARADARI
+                  </h1>
+              </div>
+              <p className="text-xs text-muted-foreground hidden sm:block">(BOI KYA WANAN)</p>
           </div>
           
           <div className="my-4">
