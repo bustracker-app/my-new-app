@@ -3,10 +3,11 @@
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from "@/firebase";
 import { collection, doc, query, orderBy } from "firebase/firestore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
 import MessageInput from "./message-input";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import ChatMessage from "./chat-message";
 
 type UserProfile = {
     uid: string;
@@ -33,6 +34,7 @@ export default function ChatWindow({ chatId, otherParticipantId, onBack }: ChatW
     const firestore = useFirestore();
     const { user: currentUser } = useUser();
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const [isConnecting, setIsConnecting] = useState(true);
 
     const userDocRef = useMemoFirebase(() => {
         if (!firestore || !otherParticipantId) return null;
@@ -50,12 +52,21 @@ export default function ChatWindow({ chatId, otherParticipantId, onBack }: ChatW
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    if (isLoadingUser || !currentUser) {
+    useEffect(() => {
+      setIsConnecting(true);
+      const timer = setTimeout(() => {
+        setIsConnecting(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }, [chatId]);
+
+    if (isLoadingUser || !currentUser || isConnecting) {
         return (
             <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4"/>
-                    <p className="text-muted-foreground">Initializing Secure Connection...</p>
+                <div className="text-center flex flex-col items-center gap-4">
+                    <ShieldCheck className="h-10 w-10 text-primary animate-pulse" />
+                    <p className="text-muted-foreground font-mono">Establishing Secure Channel...</p>
+                    <Loader2 className="h-5 w-5 animate-spin text-primary"/>
                 </div>
             </div>
         );
@@ -93,14 +104,7 @@ export default function ChatWindow({ chatId, otherParticipantId, onBack }: ChatW
                 {messages?.map(message => {
                     const isSender = message.senderId === currentUser.uid;
                     return (
-                        <div key={message.id} className={`flex ${isSender ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-lg ${isSender ? 'bg-primary/80 text-primary-foreground' : 'bg-card'}`}>
-                                <p className="text-sm">{message.text}</p>
-                                <p className="text-xs text-right mt-1 opacity-70">
-                                    {new Date(message.timestamp?.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </p>
-                            </div>
-                        </div>
+                        <ChatMessage key={message.id} message={message} isSender={isSender} />
                     )
                 })}
                 <div ref={messagesEndRef} />

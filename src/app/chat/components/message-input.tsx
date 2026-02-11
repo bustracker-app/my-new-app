@@ -8,7 +8,7 @@ import { useFirestore } from "@/firebase";
 import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SendHorizonal } from "lucide-react";
+import { SendHorizonal, Loader2 } from "lucide-react";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 
@@ -50,6 +50,9 @@ export default function MessageInput({ chatId, senderId }: MessageInputProps) {
         };
 
         try {
+            // Simulate encryption delay for animation
+            await new Promise(resolve => setTimeout(resolve, 750));
+
             await addDoc(messagesRef, messagePayload);
             await updateDoc(chatRef, {
                 lastMessage: values.text,
@@ -78,17 +81,18 @@ export default function MessageInput({ chatId, senderId }: MessageInputProps) {
                         <FormItem className="flex-1">
                             <FormControl>
                                 <Input 
-                                    placeholder="Transmit secure message..." 
+                                    placeholder={isSending ? "Encrypting transmission..." : "Transmit secure message..."}
                                     autoComplete="off"
                                     {...field}
-                                    className="bg-background/50"
+                                    disabled={isSending}
+                                    className="bg-background/50 font-mono"
                                 />
                             </FormControl>
                         </FormItem>
                     )}
                 />
                 <Button type="submit" size="icon" disabled={isSending} className="glow-shadow-primary">
-                    <SendHorizonal className="h-5 w-5"/>
+                    {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <SendHorizonal className="h-5 w-5"/>}
                 </Button>
             </form>
         </Form>
