@@ -31,7 +31,7 @@ service cloud.firestore {
 
       // Allow listing chats only if the query filters for chats where the user is a participant.
       // This rule specifically validates `where("participants", "array-contains", currentUser.uid)`
-      allow list: if isSignedIn() && request.auth.uid in request.query.filters.participants;
+      allow list: if isSignedIn() && request.auth.uid in request.query.where.participants;
     }
 
     // Rules for the 'messages' subcollection
