@@ -3,9 +3,10 @@
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from "@/firebase";
 import { collection, doc, query, orderBy } from "firebase/firestore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import MessageInput from "./message-input";
 import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 
 type UserProfile = {
     uid: string;
@@ -25,9 +26,10 @@ type Message = {
 interface ChatWindowProps {
   chatId: string;
   otherParticipantId: string;
+  onBack: () => void;
 }
 
-export default function ChatWindow({ chatId, otherParticipantId }: ChatWindowProps) {
+export default function ChatWindow({ chatId, otherParticipantId, onBack }: ChatWindowProps) {
     const firestore = useFirestore();
     const { user: currentUser } = useUser();
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -70,6 +72,9 @@ export default function ChatWindow({ chatId, otherParticipantId }: ChatWindowPro
     return (
         <div className="flex-1 flex flex-col h-screen">
             <header className="p-4 flex items-center gap-4 border-b border-primary/20">
+                <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
+                    <ArrowLeft className="h-6 w-6"/>
+                </Button>
                 <Avatar>
                     <AvatarImage src={otherUser.profilePhoto} />
                     <AvatarFallback>{otherUser.username[0]}</AvatarFallback>

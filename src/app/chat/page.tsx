@@ -12,6 +12,7 @@ import { LogOut } from 'lucide-react';
 import ChatList from './components/chat-list';
 import UserList from './components/user-list';
 import ChatWindow from './components/chat-window';
+import { cn } from '@/lib/utils';
 
 export default function ChatPage() {
   const [selectedChat, setSelectedChat] = useState<{ id: string; otherParticipantId: string } | null>(null);
@@ -50,7 +51,10 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen w-full font-code text-foreground glassmorphism">
-      <div className="flex w-full max-w-xs flex-col border-r border-primary/20">
+      <div className={cn(
+        "flex w-full flex-col border-r border-primary/20 md:w-full md:max-w-xs md:flex",
+        selectedChat ? "hidden" : "flex"
+      )}>
         <div className="flex items-center justify-between border-b border-primary/20 p-4">
           <div className="flex items-center gap-3">
             <Avatar>
@@ -81,12 +85,16 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col">
+      <div className={cn(
+        "flex flex-1 flex-col",
+        selectedChat ? "flex" : "hidden md:flex"
+      )}>
         {selectedChat ? (
           <ChatWindow
             key={selectedChat.id}
             chatId={selectedChat.id}
             otherParticipantId={selectedChat.otherParticipantId}
+            onBack={() => setSelectedChat(null)}
           />
         ) : (
           <div className="flex flex-1 items-center justify-center">
