@@ -68,6 +68,9 @@
   .glow-shadow-red {
     box-shadow: 0 0 15px 2px hsl(var(--destructive) / 0.7);
   }
+  .glow-shadow-green {
+    box-shadow: 0 0 15px 2px hsl(140 80% 50% / 0.5);
+  }
 
   /* For cyber-globe page */
   .glassmorphism-hacker {

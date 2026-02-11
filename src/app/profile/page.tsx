@@ -7,13 +7,12 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, ArrowLeft, Mail, FileText, Camera, Save, X, Shield } from 'lucide-react';
+import { Loader2, ArrowLeft, Mail, FileText, Camera, Save, X } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import SecureHubAnimation from './components/secure-hub-animation';
 
 type UserProfile = {
     uid: string;
@@ -33,7 +32,6 @@ export default function ProfilePage() {
   
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [showSecureHub, setShowSecureHub] = useState(false);
 
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
@@ -129,10 +127,6 @@ export default function ProfilePage() {
     )
   }
 
-  if (showSecureHub) {
-    return <SecureHubAnimation onComplete={() => setShowSecureHub(false)} />
-  }
-
   return (
     <div className="flex min-h-screen items-center justify-center p-4 font-code">
       <Card className="w-full max-w-md glassmorphism">
@@ -200,12 +194,7 @@ export default function ProfilePage() {
                 </Button>
               </div>
             ) : (
-              <div className="w-full space-y-2">
-                <Button onClick={() => setIsEditing(true)} className="w-full font-headline">Edit Profile</Button>
-                <Button onClick={() => setShowSecureHub(true)} className="w-full font-headline bg-green-600/20 text-green-400 border border-green-500/50 hover:bg-green-600/30 hover:text-green-300">
-                    <Shield className="h-4 w-4 mr-2" /> Enable Secure Hub
-                </Button>
-              </div>
+              <Button onClick={() => setIsEditing(true)} className="w-full font-headline">Edit Profile</Button>
             )}
         </CardContent>
       </Card>

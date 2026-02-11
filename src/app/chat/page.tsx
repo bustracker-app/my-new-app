@@ -8,16 +8,18 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { LogOut, Home, User, Globe } from 'lucide-react';
+import { LogOut, Home, User, Globe, Shield } from 'lucide-react';
 import ChatList from './components/chat-list';
 import UserList from './components/user-list';
 import ChatWindow from './components/chat-window';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import SecureHubAnimation from '../profile/components/secure-hub-animation';
 
 export default function ChatPage() {
   const [selectedChat, setSelectedChat] = useState<{ id: string; otherParticipantId: string } | null>(null);
   const [hackyText, setHackyText] = useState('');
+  const [showSecureHub, setShowSecureHub] = useState(false);
   const auth = useAuth();
   const { user: authUser } = useUser();
   const firestore = useFirestore();
@@ -64,6 +66,10 @@ export default function ChatPage() {
   const handleSelectChat = (chatId: string, otherParticipantId: string) => {
     setSelectedChat({ id: chatId, otherParticipantId });
   };
+  
+  if (showSecureHub) {
+    return <SecureHubAnimation onComplete={() => setShowSecureHub(false)} />;
+  }
 
   return (
     <div className="flex h-screen w-full font-code text-foreground glassmorphism">
@@ -78,7 +84,14 @@ export default function ChatPage() {
             </h1>
             <p className="text-xs text-muted-foreground">(BOI KYA WANAN)</p>
           </div>
-          <div className="mt-4 flex items-center justify-between">
+          
+          <div className="my-4">
+            <Button onClick={() => setShowSecureHub(true)} className="w-full font-headline bg-green-600/20 text-green-400 border border-green-500/50 hover:bg-green-600/30 hover:text-green-300 animate-pulse glow-shadow-green">
+                <Shield className="h-4 w-4 mr-2" /> Enable Secure Hub
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Avatar>
                 <AvatarImage src={userProfile?.profilePhoto} />
