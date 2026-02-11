@@ -32,7 +32,6 @@ export default function ChatList({ onSelectChat, selectedChatId }: ChatListProps
     
     const chatsQuery = useMemoFirebase(() => {
         if (!firestore || !currentUser) return null;
-        // Removed orderBy("lastMessageTime", "desc") to fix security rule conflict
         return query(
             collection(firestore, "chats"), 
             where("participants", "array-contains", currentUser.uid)
@@ -49,14 +48,6 @@ export default function ChatList({ onSelectChat, selectedChatId }: ChatListProps
         return new Map(users.map(user => [user.uid, user]));
     }, [users]);
 
-    if (isLoadingChats || isLoadingUsers) {
-        return (
-            <div className="p-4 flex items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin"/>
-            </div>
-        )
-    }
-    
     // Manually sort chats by lastMessageTime on the client-side
     const sortedChats = useMemo(() => {
         if (!chats) return [];
@@ -67,6 +58,13 @@ export default function ChatList({ onSelectChat, selectedChatId }: ChatListProps
         });
     }, [chats]);
 
+    if (isLoadingChats || isLoadingUsers) {
+        return (
+            <div className="p-4 flex items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin"/>
+            </div>
+        )
+    }
 
     return (
         <div className="p-2 space-y-1">
