@@ -1,3 +1,4 @@
+git remote set-url origin git@github.com:bustracker-app/next-platform-starter.git
 # Firebase Studio
 
 This is a NextJS starter in Firebase Studio.
