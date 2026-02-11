@@ -60,10 +60,10 @@ export default function SecureHubAnimation({ onComplete }: { onComplete: () => v
         const timers: NodeJS.Timeout[] = [];
         switch(stage) {
             case 0: // Glitch
-                timers.push(setTimeout(() => setStage(1), 500));
+                timers.push(setTimeout(() => setStage(1), 200));
                 break;
             case 1: // Scans
-                timers.push(setTimeout(() => setStage(2), 4000));
+                timers.push(setTimeout(() => setStage(2), 1500));
                 break;
             case 2: // Terminal
                 // Wait for typewriter to finish
@@ -73,19 +73,19 @@ export default function SecureHubAnimation({ onComplete }: { onComplete: () => v
                     setProgress(p => {
                         if (p >= 100) {
                             clearInterval(progressInterval);
-                            timers.push(setTimeout(() => setStage(4), 1000));
+                            timers.push(setTimeout(() => setStage(4), 200));
                             return 100;
                         }
-                        return p + 1;
+                        return p + 2;
                     });
-                }, 40);
+                }, 20);
                 timers.push(progressInterval as unknown as NodeJS.Timeout);
                 break;
             case 4: // Granted
-                timers.push(setTimeout(() => setStage(5), 3000));
+                timers.push(setTimeout(() => setStage(5), 1000));
                 break;
             case 5: // Redirect
-                timers.push(setTimeout(onComplete, 2000));
+                timers.push(setTimeout(onComplete, 500));
                 break;
         }
         return () => timers.forEach(clearTimeout);
@@ -162,7 +162,7 @@ export default function SecureHubAnimation({ onComplete }: { onComplete: () => v
                 {stage === 2 && (
                     <div className="w-full max-w-4xl h-3/4 glassmorphism-hacker p-4 overflow-y-auto text-xs md:text-sm">
                         <span className="text-green-500/80">$ </span>
-                        <Typewriter text={hackingCode.replace(/\n/g, '<br/>')} speed={10} onComplete={() => setStage(3)} />
+                        <Typewriter text={hackingCode.replace(/\n/g, '<br/>')} speed={1} onComplete={() => setStage(3)} />
                     </div>
                 )}
                 
