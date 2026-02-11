@@ -17,12 +17,12 @@ export default function LoginAnimation({ onComplete }: { onComplete: () => void 
     // Show "Access Granted" after scanline
     const grantedTimer = setTimeout(() => {
       setGranted(true);
-    }, 1500);
+    }, 1000);
 
     // Trigger completion after the animation duration
     const completeTimer = setTimeout(() => {
       onComplete();
-    }, 3500); // Total animation duration
+    }, 3000); // Total animation duration
 
     return () => {
       clearTimeout(scanlineTimer);

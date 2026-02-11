@@ -57,7 +57,7 @@ export default function ChatMessage({ message, isSender }: ChatMessageProps) {
                     setIsDecrypting(false);
                     setDisplayedText(originalText);
                 }
-                iteration += originalText.length / 45; // Control reveal speed based on length
+                iteration += originalText.length / 100; // Control reveal speed to be ~3s
             }, 30); // Controls frame rate
         }
 
