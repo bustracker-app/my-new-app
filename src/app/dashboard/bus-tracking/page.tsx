@@ -2,8 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Image from "next/image";
 import EtaForm from "./eta-form";
 import { Bus } from "lucide-react";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export default function BusTrackingPage() {
+    const mapImage = PlaceHolderImages.find(p => p.id === 'bus-tracking-map');
+
     return (
         <div className="grid gap-6 lg:grid-cols-2">
             <Card>
@@ -13,13 +16,13 @@ export default function BusTrackingPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="relative aspect-video w-full">
-                        <Image 
-                            src="https://picsum.photos/seed/map/800/450"
-                            alt="Map with bus location"
+                        {mapImage && <Image 
+                            src={mapImage.imageUrl}
+                            alt={mapImage.description}
                             fill
                             className="rounded-md object-cover"
-                            data-ai-hint="map satellite"
-                        />
+                            data-ai-hint={mapImage.imageHint}
+                        />}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                             <div className="relative flex h-10 w-10">
                                 <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></div>

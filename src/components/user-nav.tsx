@@ -13,11 +13,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { CreditCard, LogOut, Settings, User } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Skeleton } from './ui/skeleton';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export function UserNav() {
   const [mounted, setMounted] = useState(false);
+  const avatarImage = useMemo(() => PlaceHolderImages.find(p => p.id === 'user-avatar'), []);
 
   useEffect(() => {
     setMounted(true);
@@ -32,7 +34,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src="https://picsum.photos/seed/user-avatar/100/100" alt="@admin" data-ai-hint="person portrait" />
+            {avatarImage && <AvatarImage src={avatarImage.imageUrl} alt="@admin" data-ai-hint={avatarImage.imageHint} />}
             <AvatarFallback>AD</AvatarFallback>
           </Avatar>
         </Button>

@@ -1,22 +1,22 @@
 {
   "placeholderImages": [
     {
-      "id": "login-background",
-      "description": "A modern school building, representing the Abu Huraira Institute.",
-      "imageUrl": "https://images.unsplash.com/photo-1584750153892-38414eb8e76a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzY2hvb2wlMjBidWlsZGluZ3xlbnwwfHx8fDE3NzA3ODI4OTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "school building"
-    },
-    {
       "id": "user-avatar",
       "description": "A placeholder avatar for a user.",
-      "imageUrl": "https://images.unsplash.com/photo-1521119989659-a83eee488004?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA3MDUyNjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1521119989659-a83eee488004?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA3MDUyNjF8MA&ixlib=rb-4.1.0&q=80&w=100&h=100",
       "imageHint": "person portrait"
     },
     {
       "id": "bus-tracking-map",
       "description": "A satellite map view for bus tracking.",
-      "imageUrl": "https://images.unsplash.com/photo-1722083854825-8f376783b9de?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtYXAlMjBzYXRlbGxpdGV8ZW58MHx8fHwxNzcwNzgyODk1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1506169843978-ff3a69a25a94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtYXAlMjBzYXRlbGxpdGV8ZW58MHx8fHwxNzIxMjM5MzY5fDA&ixlib=rb-4.1.0&q=80&w=800&h=450",
       "imageHint": "map satellite"
+    },
+    {
+      "id": "cyber-globe-map",
+      "description": "A digital world map for the cyber globe display.",
+      "imageUrl": "https://images.unsplash.com/photo-1593369528447-c07925c3ba32?q=80&w=2000&auto=format&fit=crop",
+      "imageHint": "digital world map"
     }
   ]
 }

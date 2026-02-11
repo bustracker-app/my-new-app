@@ -8,7 +8,7 @@ import { useFirestore } from "@/firebase";
 import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SendHorizonal, Loader2 } from "lucide-react";
+import { SendHorizontal, Loader2 } from "lucide-react";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 
@@ -92,7 +92,7 @@ export default function MessageInput({ chatId, senderId }: MessageInputProps) {
                     )}
                 />
                 <Button type="submit" size="icon" disabled={isSending} className="glow-shadow-primary">
-                    {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <SendHorizonal className="h-5 w-5"/>}
+                    {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <SendHorizontal className="h-5 w-5"/>}
                 </Button>
             </form>
         </Form>

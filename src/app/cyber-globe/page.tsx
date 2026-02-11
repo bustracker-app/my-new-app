@@ -6,6 +6,7 @@ import { ArrowLeft, ShieldAlert, ShieldCheck, ShieldOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const LogIcon = ({ status }: { status: string }) => {
   if (status === 'ALERT') return <ShieldAlert className="h-4 w-4 flex-shrink-0 text-red-500 text-glow-red" />;
@@ -41,6 +42,7 @@ export default function CyberGlobePage() {
     const [logs, setLogs] = useState<{ id: number; status: string; message: string; color: string }[]>([]);
     const [attacks, setAttacks] = useState<{ id: number; from: string; to: string }[]>([]);
     const [currentIssueIndex, setCurrentIssueIndex] = useState(0);
+    const globeMapImage = useMemo(() => PlaceHolderImages.find(p => p.id === 'cyber-globe-map'), []);
 
     const locations = useMemo(() => ['USA', 'Russia', 'China', 'Germany', 'UK', 'N. Korea', 'Brazil', 'India', 'Japan', 'Iran'], []);
     const attackTypes = useMemo(() => ['Data Breach', 'DDoS', 'Ransomware', 'Phishing', 'Malware', 'Firewall'], []);
@@ -174,13 +176,13 @@ export default function CyberGlobePage() {
 
                     {/* Center: Globe */}
                     <div className="relative col-span-12 md:col-span-6 row-span-4 md:row-span-6 -m-4 md:m-0">
-                         <Image 
-                            src="https://images.unsplash.com/photo-1593369528447-c07925c3ba32?q=80&w=2000&auto=format&fit=crop"
-                            alt="Digital World Map"
+                         {globeMapImage && <Image 
+                            src={globeMapImage.imageUrl}
+                            alt={globeMapImage.description}
                             fill
                             className="object-contain opacity-40 animate-pulse-slow"
-                            data-ai-hint="digital world map"
-                         />
+                            data-ai-hint={globeMapImage.imageHint}
+                         />}
                          <div className="absolute inset-0 futuristic-radar-sweep-container">
                             <div className="futuristic-radar-sweep-line"></div>
                          </div>

@@ -33,13 +33,6 @@ export default function LoginAnimation({ onComplete }: { onComplete: () => void 
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background font-code text-primary overflow-hidden">
-      {/* Audio will play automatically on component mount */}
-      <audio autoPlay>
-        {/* The user needs to place their audio file at /public/audio/access-granted.mp3 */}
-        <source src="/audio/access-granted.mp3" type="audio/mpeg" />
-        Your browser does not support the audio element.
-      </audio>
-
       <div className="relative flex flex-col items-center justify-center w-48 h-48">
         <ShieldCheck
           className={cn(
