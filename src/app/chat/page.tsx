@@ -87,7 +87,7 @@ export default function ChatPage() {
           
           <div className="my-4">
             <Button onClick={() => setShowSecureHub(true)} className="w-full font-headline bg-green-600/20 text-green-400 border border-green-500/50 hover:bg-green-600/30 hover:text-green-300 animate-pulse glow-shadow-green">
-                <Shield className="h-4 w-4 mr-2" /> Enable Secure Hub
+                <Shield className="h-4 w-4 mr-2" /> Enable Secure Mode
             </Button>
           </div>
 
