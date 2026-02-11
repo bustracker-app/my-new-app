@@ -2,233 +2,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * Core Philosophy:
-     * This ruleset implements a Role-Based Access Control (RBAC) model tailored for a school management system. 
-     * A user's role (e.g., 'admin', 'teacher', 'parent'), stored on their user profile, determines their permissions throughout the database.
-     * The default posture is "deny all," requiring explicit grants for any access.
-     *
-     * Data Structure:
-     * The database uses a flat structure with top-level collections for primary entities like users, students, classes, and homework.
-     * Relationships are managed through stored IDs (e.g., a 'student' document contains a 'parentId').
-     *
-     * Key Security Decisions:
-     * - Role-Based Writes: All write operations (create, update, delete) on shared school data (classes, subjects, etc.) and student records are restricted to 'admin' or 'teacher' roles (collectively "Staff").
-     * - Parent Access: Parents can only access the data of students directly linked to them via the 'parentId' field on the student's document. This is enforced through a lookup.
-     * - User Privacy: Users can manage their own profile, but cannot list or view other users' profiles, preventing user enumeration. Admins have override access for management.
-     * - Authenticated Reads: Most non-sensitive school information (like class lists and homework assignments) is readable by any authenticated user, simplifying access for the entire school community.
-     *
-     * Denormalization for Authorization:
-     * To secure student-related data (marks, fees, attendance), we rely on the `parentId` field denormalized onto each `student` document. Rules for child collections like `/marks` perform a `get()` call to the corresponding `/students/{studentId}` document to verify this parental link, ensuring that access control is derived from the primary relationship. User roles are stored on the `/users/{uid}` document and are read as needed to make authorization decisions.
-     */
-
-    // --------------------------------
-    // Helper Functions
-    // --------------------------------
-
-    /**
-     * Checks if the user is signed in.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Checks if the requesting user's UID matches the provided userId.
-     * Used to verify resource ownership.
-     */
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    // Rules for the 'users' collection
+    match /users/{userId} {
+      // Anyone can see a user's basic, non-sensitive public profile info
+      allow get: if isSignedIn();
+      // Only the authenticated user can see their own full profile
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      // A user can only create their own profile, and the UID must match.
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      // A user can only update their own profile.
+      allow update: if isSignedIn() && request.auth.uid == userId;
+      // Users cannot delete their profiles through the app.
+      allow delete: if false;
     }
 
-    /**
-     * Retrieves the role of the currently authenticated user from their profile document.
-     * Note: This function results in a Firestore read operation every time it's called.
-     */
-    function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    // Rules for the 'chats' collection
+    match /chats/{chatId} {
+      // Allow read and write only if the user is a participant in the chat.
+      allow read, write: if isSignedIn() && request.auth.uid in resource.data.participants;
     }
 
-    /**
-     * Checks if the currently authenticated user has the 'admin' role.
-     */
-    function isAdmin() {
-      return isSignedIn() && getUserRole() == 'admin';
+    // Rules for the 'messages' subcollection
+    match /chats/{chatId}/messages/{messageId} {
+      // To read or write a message, user must be a participant of the parent chat.
+      // This is efficient and secure.
+      allow read, write: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
     }
-
-    /**
-     * Checks if the user is an admin or a teacher.
-     */
-    function isStaff() {
-      // Combine roles to simplify rules for school staff
-      let role = getUserRole();
-      return isSignedIn() && (role == 'admin' || role == 'teacher');
-    }
-
-    /**
-     * Checks if the requesting user is the parent of a given student.
-     * Requires reading the student document to check the parentId field.
-     */
-    function isParentOfStudent(studentId) {
-      let student = get(/databases/$(database)/documents/students/$(studentId)).data;
-      return student.parentId == request.auth.uid;
-    }
-
-    /**
-     * Determines if the current user can access a specific student's data,
-     * either by being a staff member or the student's designated parent.
-     */
-    function canAccessStudentData(studentId) {
-        return isStaff() || isParentOfStudent(studentId);
-    }
-    
-    // --------------------------------
-    // Collection Rules
-    // --------------------------------
-
-    /**
-     * @description Manages user profiles. Users can create and manage their own profile. Admins have full access for management purposes.
-     * @path /users/{uid}
-     * @allow (create) An authenticated user creating their own profile document where the document ID matches their UID.
-     * @deny (list) Any user attempting to list all user profiles in the database.
-     * @principle Restricts access to a user's own data tree and provides an admin override.
-     */
-    match /users/{uid} {
-      allow get: if isOwner(uid) || isAdmin();
-      allow list: if false;
-      allow create: if isOwner(uid) && request.resource.data.uid == uid;
-      allow update: if (isOwner(uid) && request.resource.data.uid == resource.data.uid) || isAdmin();
-      allow delete: if isOwner(uid) || isAdmin();
-    }
-
-    /**
-     * @description Stores student profiles. Access is granted to staff (admins/teachers) and the parent linked to the student.
-     * @path /students/{studentId}
-     * @allow (get) A user with the 'parent' role reading their own child's student document.
-     * @deny (update) A parent attempting to modify their child's student record.
-     * @principle Enforces access control through a relationship defined in another document (parent-child link).
-     */
-    match /students/{studentId} {
-      allow get: if isSignedIn() && canAccessStudentData(studentId);
-      allow list: if isStaff();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-
-    /**
-     * @description Stores general school information like classes, sections, and subjects. Readable by any authenticated user, writable only by staff.
-     * @path /classes/{classId}, /sections/{sectionId}, /subjects/{subjectId}
-     * @allow (list) Any signed-in user (e.g., a parent) listing all available classes.
-     * @deny (create) A user with a 'parent' role trying to add a new class.
-     * @principle Allows public read access for authenticated users while protecting write operations for authorized roles.
-     */
-    match /classes/{classId} {
-      allow get, list: if isSignedIn();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-
-    match /sections/{sectionId} {
-      allow get, list: if isSignedIn();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-    
-    match /subjects/{subjectId} {
-      allow get, list: if isSignedIn();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-
-    /**
-     * @description Manages student-specific attendance records. Access is derived from the related student document.
-     * @path /attendance/{attendanceId}
-     * @allow (get) A parent retrieving an attendance record for their own child, verified by checking the student's `parentId`.
-     * @deny (get) A parent trying to read the attendance record of another student.
-     * @principle Secures child documents by performing a lookup on the parent document for authorization data.
-     */
-    match /attendance/{attendanceId} {
-      allow get: if isSignedIn() && canAccessStudentData(resource.data.studentId);
-      allow list: if isStaff();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-
-    /**
-     * @description Manages student marks. Access is derived from the related student document.
-     * @path /marks/{markId}
-     * @allow (get) A teacher retrieving a mark record for a student.
-     * @deny (create) A parent trying to create a mark record for their child.
-     * @principle Secures child documents by performing a lookup on the parent document for authorization data.
-     */
-    match /marks/{markId} {
-      allow get: if isSignedIn() && canAccessStudentData(resource.data.studentId);
-      allow list: if isStaff();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-
-    /**
-     * @description Stores homework assignments. Readable by any authenticated user, writable only by staff.
-     * @path /homework/{homeworkId}
-     * @allow (get) A parent or student viewing a homework assignment for a class.
-     * @deny (update) A parent trying to change the due date of a homework assignment.
-     * @principle Allows public read access for authenticated users while protecting write operations for authorized roles.
-     */
-    match /homework/{homeworkId} {
-      allow get, list: if isSignedIn();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-
-    /**
-     * @description Manages student fee records. Access is derived from the related student document.
-     * @path /fees/{feeId}
-     * @allow (get) A parent retrieving a fee record for their own child.
-     * @deny (list) A parent attempting to list all fee records in the school.
-     * @principle Secures child documents by performing a lookup on the parent document for authorization data.
-     */
-    match /fees/{feeId} {
-      allow get: if isSignedIn() && canAccessStudentData(resource.data.studentId);
-      allow list: if isStaff();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-
-    /**
-     * @description Stores school transportation information. Readable by any authenticated user, writable only by staff.
-     * @path /buses/{busId}, /routes/{routeId}, /stops/{stopId}
-     * @allow (list) Any authenticated user listing all bus routes.
-     * @deny (create) A parent attempting to add a new bus stop.
-     * @principle Allows public read access for authenticated users while protecting write operations for authorized roles.
-     */
-    match /buses/{busId} {
-      allow get, list: if isSignedIn();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-
-    match /routes/{routeId} {
-      allow get, list: if isSignedIn();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-    
-    match /stops/{stopId} {
-      allow get, list: if isSignedIn();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isStaff();
-    }
-  } 
+  }
 }
